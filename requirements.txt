@@ -1,0 +1,7 @@
+﻿streamlit
+pandas
+requests
+rank-bm25
+sentence-transformers
+faiss-cpu
+pytest

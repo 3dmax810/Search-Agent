@@ -1,0 +1,20 @@
+{"question":"Which city is the birthplace of the author of The Silent Harbor?","answer":"Brookhaven","supporting_doc_ids":["doc001","doc002"],"type":"multi-hop"}
+{"question":"Which city is the birthplace of the author of Glass Meridian?","answer":"Windmere","supporting_doc_ids":["doc003","doc004"],"type":"multi-hop"}
+{"question":"Which city is the birthplace of the actor who starred in Blue Orbit?","answer":"Caldera","supporting_doc_ids":["doc005","doc006"],"type":"multi-hop"}
+{"question":"Which city is the birthplace of the actor who starred in Echo Lantern?","answer":"Northwick","supporting_doc_ids":["doc007","doc008"],"type":"multi-hop"}
+{"question":"At which university did the scientist who first described the Auric Lens effect complete doctoral research?","answer":"Meridian Technical University","supporting_doc_ids":["doc009","doc010"],"type":"multi-hop"}
+{"question":"Which institution employs the scientist who identified the Cinder Moss enzyme?","answer":"Larkspur Institute of Biology","supporting_doc_ids":["doc011","doc012"],"type":"multi-hop"}
+{"question":"Which city is the birthplace of the founder of Nimbrel Systems?","answer":"Eastvale","supporting_doc_ids":["doc013","doc014"],"type":"multi-hop"}
+{"question":"Which city is the birthplace of the founder of QuantaForge?","answer":"Harborfall","supporting_doc_ids":["doc015","doc016"],"type":"multi-hop"}
+{"question":"What is the hometown of the singer behind Midnight Kites?","answer":"Redbrook","supporting_doc_ids":["doc017","doc018"],"type":"multi-hop"}
+{"question":"What is the hometown of the singer behind River Under Glass?","answer":"Flintbay","supporting_doc_ids":["doc019","doc020"],"type":"multi-hop"}
+{"question":"Which organization employs the winner of the 2041 Ardent Prize?","answer":"Northbridge Observatory","supporting_doc_ids":["doc021","doc022"],"type":"multi-hop"}
+{"question":"Which organization employs the winner of the 2038 Helix Laurel?","answer":"Calder Research House","supporting_doc_ids":["doc023","doc024"],"type":"multi-hop"}
+{"question":"Which city is the birthplace of the mayor of Stonegate?","answer":"Glenshire","supporting_doc_ids":["doc025","doc026"],"type":"multi-hop"}
+{"question":"Which city is the birthplace of the mayor of Irisport?","answer":"Viremont","supporting_doc_ids":["doc027","doc028"],"type":"multi-hop"}
+{"question":"Which institution was the inventor of the Silver Loom affiliated with during prototype development?","answer":"Aster Polytechnic","supporting_doc_ids":["doc029","doc030"],"type":"multi-hop"}
+{"question":"Which college was the inventor of the Tide Compass associated with when the registration was filed?","answer":"Willowbank College","supporting_doc_ids":["doc031","doc032"],"type":"multi-hop"}
+{"question":"Which institution sponsors the award won by the author of Song of Petals?","answer":"Bexley Arts Trust","supporting_doc_ids":["doc033","doc034","doc035"],"type":"multi-hop"}
+{"question":"Which city hosts the headquarters of the company founded by the actor who starred in Lantern Reef?","answer":"Seaborne","supporting_doc_ids":["doc036","doc037","doc038"],"type":"multi-hop"}
+{"question":"Which city is home to the university attended by the founder of Northpass Aeroworks?","answer":"Fairford","supporting_doc_ids":["doc039","doc040","doc041"],"type":"multi-hop"}
+{"question":"Which institution administers the award won by the scientist who discovered the Pale Thread Signal?","answer":"Orison Academy","supporting_doc_ids":["doc042","doc043","doc044"],"type":"multi-hop"}

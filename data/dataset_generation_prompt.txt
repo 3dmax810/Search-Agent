@@ -1,0 +1,53 @@
+你是一个用于构造 Search-Agent 项目评测数据集的数据生成器。
+
+我要构建一个“多轮搜索增强推理 Agent”项目。请生成一个合成数据集，用于测试 Agent 是否能通过多轮搜索完成 multi-hop question answering。
+
+请生成两部分数据：
+
+1. 检索语料 docs.jsonl
+2. 问答评测集 qa.jsonl
+
+总体要求：
+- 数据必须是自洽的，所有答案都必须能从 docs.jsonl 中找到证据。
+- 不要依赖真实世界知识，优先使用虚构人物、书籍、城市、公司、学校、奖项、电影等，避免事实争议。
+- 每个问题至少需要 2 跳推理才能回答。
+- 每个 qa 样本必须给出 supporting_doc_ids。
+- supporting_doc_ids 必须能在 docs.jsonl 中找到。
+- 答案必须是短答案，例如城市名、人物名、年份、机构名。
+- 文档中可以加入少量 distractor docs，用来干扰检索。
+- 输出必须是严格 JSONL，不要输出 Markdown，不要解释。
+
+docs.jsonl 格式：
+{"doc_id":"doc001","title":"...","text":"...","source":"synthetic"}
+
+qa.jsonl 格式：
+{"question":"...","answer":"...","supporting_doc_ids":["doc001","doc002"],"type":"multi-hop"}
+
+请生成：
+- 50 条 docs.jsonl
+- 20 条 qa.jsonl
+
+数据主题可以混合：
+- author -> book -> birthplace
+- actor -> movie -> birthplace
+- scientist -> discovery -> university
+- company -> founder -> birthplace
+- album -> singer -> hometown
+- award -> winner -> employer
+- city -> mayor -> birthplace
+- invention -> inventor -> institution
+
+推理示例：
+文档 1：The Silent Harbor is a novel written by Lena Moris.
+文档 2：Lena Moris was born in Brookhaven.
+问题：Which city is the birthplace of the author of The Silent Harbor?
+答案：Brookhaven
+supporting_doc_ids：["doc001","doc002"]
+
+额外约束：
+- 请确保 60% 的问题无法通过单次关键词搜索直接命中最终答案。
+- 例如问题中只出现作品名、电影名、公司名或奖项名，而最终答案藏在关联人物的文档中。
+- 每条 qa 的 supporting_doc_ids 至少 2 个，最多 3 个。
+- docs.jsonl 中 doc_id 必须唯一，qa.jsonl 中引用的 doc_id 必须全部存在。
+- JSONL 每行必须是合法 JSON 对象。
+- 使用 ASCII 英文内容，避免中文和非 ASCII 标点。

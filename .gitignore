@@ -1,0 +1,17 @@
+﻿__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+.pytest_cache/
+.streamlit/
+*.log
+
+.env
+.venv/
+venv/
+
+.DS_Store
+Thumbs.db
+
+results/streamlit*.log

@@ -1,0 +1,4 @@
+method,count,em,f1,citation_hit,avg_search_turns,avg_latency_seconds,format_error_rate
+no-search,20,0.0,0.04583333333333332,0.0,0.0,3.4022232600014832,0.0
+single-shot-rag,20,0.1,0.1351190476190476,0.65,1.0,3.744868505001796,0.0
+search-agent,20,0.8,0.8,1.0,1.85,14.354532044998631,0.0

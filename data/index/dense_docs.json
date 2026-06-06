@@ -1,0 +1,302 @@
+[
+  {
+    "doc_id": "doc001",
+    "title": "The Silent Harbor",
+    "text": "The Silent Harbor is a novel written by Lena Moris. The story follows a young chartmaker who studies coded tides near the fictional Marrow Coast.",
+    "source": "synthetic"
+  },
+  {
+    "doc_id": "doc002",
+    "title": "Lena Moris",
+    "text": "Lena Moris was born in Brookhaven. Her later essays often mention the mills and fog bridges of that city.",
+    "source": "synthetic"
+  },
+  {
+    "doc_id": "doc003",
+    "title": "Glass Meridian",
+    "text": "Glass Meridian is a novel by Torin Vale. The book is known in this synthetic catalog for its clockwork desert setting.",
+    "source": "synthetic"
+  },
+  {
+    "doc_id": "doc004",
+    "title": "Torin Vale",
+    "text": "Torin Vale was born in Windmere. He began writing travel fables before publishing speculative fiction.",
+    "source": "synthetic"
+  },
+  {
+    "doc_id": "doc005",
+    "title": "Blue Orbit",
+    "text": "Blue Orbit is a film starring Mara Quill. Its plot centers on a pilot who traces radio signals between artificial moons.",
+    "source": "synthetic"
+  },
+  {
+    "doc_id": "doc006",
+    "title": "Mara Quill",
+    "text": "Mara Quill was born in Caldera. She trained at a regional stage school before moving into screen roles.",
+    "source": "synthetic"
+  },
+  {
+    "doc_id": "doc007",
+    "title": "Echo Lantern",
+    "text": "Echo Lantern is a film starring Joss Arden. The film uses a fictional lighthouse network as its main setting.",
+    "source": "synthetic"
+  },
+  {
+    "doc_id": "doc008",
+    "title": "Joss Arden",
+    "text": "Joss Arden was born in Northwick. Earlier in his career, he performed in small theater companies along the northern rail line.",
+    "source": "synthetic"
+  },
+  {
+    "doc_id": "doc009",
+    "title": "Auric Lens Effect",
+    "text": "The Auric Lens effect was first described by Dr. Nia Pell. The effect concerns a synthetic change in how metallic crystals scatter amber light.",
+    "source": "synthetic"
+  },
+  {
+    "doc_id": "doc010",
+    "title": "Nia Pell",
+    "text": "Nia Pell completed her doctoral research at Meridian Technical University. Her laboratory notebooks later became part of the university archive.",
+    "source": "synthetic"
+  },
+  {
+    "doc_id": "doc011",
+    "title": "Cinder Moss Enzyme",
+    "text": "The Cinder Moss enzyme was identified by Hal Orven. The enzyme appears only in invented botanical examples used for this dataset.",
+    "source": "synthetic"
+  },
+  {
+    "doc_id": "doc012",
+    "title": "Hal Orven",
+    "text": "Hal Orven works at Larkspur Institute of Biology. His profile lists synthetic plant chemistry as his primary field.",
+    "source": "synthetic"
+  },
+  {
+    "doc_id": "doc013",
+    "title": "Nimbrel Systems",
+    "text": "Nimbrel Systems was founded by Cato Ren. The company builds fictional navigation software for museum simulations.",
+    "source": "synthetic"
+  },
+  {
+    "doc_id": "doc014",
+    "title": "Cato Ren",
+    "text": "Cato Ren was born in Eastvale. Before founding a company, he designed puzzle maps for public science exhibits.",
+    "source": "synthetic"
+  },
+  {
+    "doc_id": "doc015",
+    "title": "QuantaForge",
+    "text": "QuantaForge was founded by Ilya Sorn. The firm is a synthetic manufacturer of educational micro-reactor models.",
+    "source": "synthetic"
+  },
+  {
+    "doc_id": "doc016",
+    "title": "Ilya Sorn",
+    "text": "Ilya Sorn was born in Harborfall. He later became known for funding fictional engineering fellowships.",
+    "source": "synthetic"
+  },
+  {
+    "doc_id": "doc017",
+    "title": "Midnight Kites",
+    "text": "Midnight Kites is an album by singer Elara Wynn. The album contains twelve invented folk-pop tracks about night markets.",
+    "source": "synthetic"
+  },
+  {
+    "doc_id": "doc018",
+    "title": "Elara Wynn",
+    "text": "Elara Wynn grew up in Redbrook, which her official biography names as her hometown. She often records with acoustic string players.",
+    "source": "synthetic"
+  },
+  {
+    "doc_id": "doc019",
+    "title": "River Under Glass",
+    "text": "River Under Glass is an album by singer Milo Venn. Its songs describe fictional waterways beneath a frozen city.",
+    "source": "synthetic"
+  },
+  {
+    "doc_id": "doc020",
+    "title": "Milo Venn",
+    "text": "Milo Venn names Flintbay as his hometown. His early performances took place in small harbor cafes.",
+    "source": "synthetic"
+  },
+  {
+    "doc_id": "doc021",
+    "title": "Ardent Prize 2041",
+    "text": "The Ardent Prize in 2041 was awarded to Rhea Solan. The prize citation praised her synthetic work on quiet telescope arrays.",
+    "source": "synthetic"
+  },
+  {
+    "doc_id": "doc022",
+    "title": "Rhea Solan",
+    "text": "Rhea Solan is employed by Northbridge Observatory. Her role there focuses on calibration methods for fictional deep-sky sensors.",
+    "source": "synthetic"
+  },
+  {
+    "doc_id": "doc023",
+    "title": "Helix Laurel 2038",
+    "text": "The Helix Laurel in 2038 went to Tomas Irel. The award note cited his imaginary model of spiral seed dispersion.",
+    "source": "synthetic"
+  },
+  {
+    "doc_id": "doc024",
+    "title": "Tomas Irel",
+    "text": "Tomas Irel works for Calder Research House. The organization maintains a synthetic archive of ecological models.",
+    "source": "synthetic"
+  },
+  {
+    "doc_id": "doc025",
+    "title": "Stonegate Civic Record",
+    "text": "In Stonegate, the current mayor in this synthetic civic record is Petra Lume. The record also lists several fictional council committees.",
+    "source": "synthetic"
+  },
+  {
+    "doc_id": "doc026",
+    "title": "Petra Lume",
+    "text": "Petra Lume was born in Glenshire. Her public biography describes her early work as a school planner.",
+    "source": "synthetic"
+  },
+  {
+    "doc_id": "doc027",
+    "title": "Irisport Civic Record",
+    "text": "The mayor of Irisport is Dalen Rhys. Irisport appears here as a fictional canal city used for reasoning tests.",
+    "source": "synthetic"
+  },
+  {
+    "doc_id": "doc028",
+    "title": "Dalen Rhys",
+    "text": "Dalen Rhys was born in Viremont. Before entering local office, he managed a synthetic ferry schedule project.",
+    "source": "synthetic"
+  },
+  {
+    "doc_id": "doc029",
+    "title": "Silver Loom Device",
+    "text": "The Silver Loom device was invented by Anika Ro. It is described as a fictional machine for weaving programmable light fibers.",
+    "source": "synthetic"
+  },
+  {
+    "doc_id": "doc030",
+    "title": "Anika Ro",
+    "text": "Anika Ro developed early prototypes while affiliated with Aster Polytechnic. Her affiliation record is part of this synthetic dataset.",
+    "source": "synthetic"
+  },
+  {
+    "doc_id": "doc031",
+    "title": "Tide Compass",
+    "text": "The Tide Compass was invented by Bren Kade. The instrument is a fictional handheld tool for estimating moon-driven currents.",
+    "source": "synthetic"
+  },
+  {
+    "doc_id": "doc032",
+    "title": "Bren Kade",
+    "text": "Bren Kade was a researcher at Willowbank College when the Tide Compass registration was filed. He later taught courses on synthetic instruments.",
+    "source": "synthetic"
+  },
+  {
+    "doc_id": "doc033",
+    "title": "Song of Petals",
+    "text": "Song of Petals is a novel written by Veda Noll. It tells a fictional story about gardeners preserving a coded archive.",
+    "source": "synthetic"
+  },
+  {
+    "doc_id": "doc034",
+    "title": "Veda Noll",
+    "text": "Veda Noll won the Maple Crown in 2044. Her award entry cites the novel Song of Petals as a major reason for the honor.",
+    "source": "synthetic"
+  },
+  {
+    "doc_id": "doc035",
+    "title": "Maple Crown",
+    "text": "The Maple Crown is sponsored by Bexley Arts Trust. The award is fictional and appears only in this synthetic collection.",
+    "source": "synthetic"
+  },
+  {
+    "doc_id": "doc036",
+    "title": "Lantern Reef",
+    "text": "Lantern Reef is a film starring Owen Pike. The movie follows divers who map a glowing reef in an invented island chain.",
+    "source": "synthetic"
+  },
+  {
+    "doc_id": "doc037",
+    "title": "Owen Pike",
+    "text": "Owen Pike founded Quillframe Media after his early acting career. The company name is frequently listed beside his filmography.",
+    "source": "synthetic"
+  },
+  {
+    "doc_id": "doc038",
+    "title": "Quillframe Media",
+    "text": "Quillframe Media is headquartered in Seaborne. The studio produces synthetic short films and training reels.",
+    "source": "synthetic"
+  },
+  {
+    "doc_id": "doc039",
+    "title": "Northpass Aeroworks",
+    "text": "Northpass Aeroworks was founded by Sana Mire. The company designs fictional glider systems for educational exhibits.",
+    "source": "synthetic"
+  },
+  {
+    "doc_id": "doc040",
+    "title": "Sana Mire",
+    "text": "Sana Mire studied at Crescent Hall University. Her student profile lists applied aeronautics as her main program.",
+    "source": "synthetic"
+  },
+  {
+    "doc_id": "doc041",
+    "title": "Crescent Hall University",
+    "text": "Crescent Hall University is located in Fairford. The campus is part of the fictional Vale District.",
+    "source": "synthetic"
+  },
+  {
+    "doc_id": "doc042",
+    "title": "Pale Thread Signal",
+    "text": "The Pale Thread Signal was discovered by Eron Voss. In this dataset, it is a synthetic pattern in laboratory sensor noise.",
+    "source": "synthetic"
+  },
+  {
+    "doc_id": "doc043",
+    "title": "Eron Voss",
+    "text": "Eron Voss won the Dovetail Medal in 2042. His award profile mentions his work on the Pale Thread Signal.",
+    "source": "synthetic"
+  },
+  {
+    "doc_id": "doc044",
+    "title": "Dovetail Medal",
+    "text": "The Dovetail Medal is administered by Orison Academy. It recognizes fictional achievements in signal research.",
+    "source": "synthetic"
+  },
+  {
+    "doc_id": "doc045",
+    "title": "Broken Atlas",
+    "text": "Broken Atlas is a novel written by Mira Thale. It is unrelated to the books used in the main evaluation questions.",
+    "source": "synthetic"
+  },
+  {
+    "doc_id": "doc046",
+    "title": "Mira Thale",
+    "text": "Mira Thale was born in Copperden. Her biography is included as a distractor for author birthplace retrieval.",
+    "source": "synthetic"
+  },
+  {
+    "doc_id": "doc047",
+    "title": "Obsidian Harbor",
+    "text": "Obsidian Harbor is a film starring Kellan Roux. Its title resembles other harbor stories but belongs to a separate synthetic plot.",
+    "source": "synthetic"
+  },
+  {
+    "doc_id": "doc048",
+    "title": "Kellan Roux",
+    "text": "Kellan Roux was born in Briarstead. He is a distractor actor for movie birthplace questions.",
+    "source": "synthetic"
+  },
+  {
+    "doc_id": "doc049",
+    "title": "Amber Coil",
+    "text": "The Amber Coil was invented by Talia Greaves. It is a fictional magnetic teaching device not used by the evaluation set.",
+    "source": "synthetic"
+  },
+  {
+    "doc_id": "doc050",
+    "title": "Talia Greaves",
+    "text": "Talia Greaves worked at Emberline Institute while developing classroom instruments. Her record is a distractor for invention institution questions.",
+    "source": "synthetic"
+  }
+]

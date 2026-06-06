@@ -1,0 +1,61 @@
+{
+  "retriever": "dense",
+  "embedding_model_path": "D:\\Files\\PycharmProject\\keyboard\\shixi\\models\\Embedding\\bge-base-zh",
+  "index_path": "D:\\Files\\PycharmProject\\keyboard\\shixi\\Search-Agent\\data\\index\\faiss.index",
+  "meta_path": "D:\\Files\\PycharmProject\\keyboard\\shixi\\Search-Agent\\data\\index\\dense_docs.json",
+  "doc_count": 50,
+  "top_k": 3,
+  "smoke_results": {
+    "author of The Silent Harbor": [
+      {
+        "doc_id": "doc001",
+        "title": "The Silent Harbor",
+        "score": 0.86000657081604
+      },
+      {
+        "doc_id": "doc047",
+        "title": "Obsidian Harbor",
+        "score": 0.8233129382133484
+      },
+      {
+        "doc_id": "doc046",
+        "title": "Mira Thale",
+        "score": 0.8021174669265747
+      }
+    ],
+    "Lena Moris birthplace": [
+      {
+        "doc_id": "doc046",
+        "title": "Mira Thale",
+        "score": 0.8088463544845581
+      },
+      {
+        "doc_id": "doc002",
+        "title": "Lena Moris",
+        "score": 0.7987933158874512
+      },
+      {
+        "doc_id": "doc048",
+        "title": "Kellan Roux",
+        "score": 0.7971808314323425
+      }
+    ],
+    "Blue Orbit actor birthplace": [
+      {
+        "doc_id": "doc005",
+        "title": "Blue Orbit",
+        "score": 0.8100252747535706
+      },
+      {
+        "doc_id": "doc048",
+        "title": "Kellan Roux",
+        "score": 0.8021145462989807
+      },
+      {
+        "doc_id": "doc046",
+        "title": "Mira Thale",
+        "score": 0.774020791053772
+      }
+    ]
+  }
+}
