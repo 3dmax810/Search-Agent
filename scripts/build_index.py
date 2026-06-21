@@ -46,7 +46,7 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument(
         "--embedding-model-path",
-        default=str(root_path.parent / "models" / "Embedding" / "bge-base-zh"),
+        default=str(root_path.parent / "models" / "Embedding" / "bge-base-en"),
     )
     parser.add_argument(
         "--build-dense", action="store_true", help="Build FAISS dense retrieval index."
@@ -113,6 +113,7 @@ def main():
             model_path=args.embedding_model_path,
             index_path=dense_index_path,
             meta_path=dense_meta_path,
+            load_existing_index=False,
         )
         dense_retriever.build_index()
 

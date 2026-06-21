@@ -21,7 +21,7 @@ def load_jsonl(path: Path) -> list[dict]:
 def make_hybrid_retriever() -> HybridRetriever:
     return HybridRetriever(
         docs_path=root_path / "data" / "processed" / "docs.jsonl",
-        dense_model_path=root_path.parent / "models" / "Embedding" / "bge-base-zh",
+        dense_model_path=root_path.parent / "models" / "Embedding" / "bge-base-en",
         dense_index_path=root_path / "data" / "index" / "faiss.index",
         dense_meta_path=root_path / "data" / "index" / "dense_docs.json",
     )

@@ -3,7 +3,7 @@ import json
 import sys
 from collections import defaultdict
 from pathlib import Path
-from typing import Protocol
+from typing import Callable, Protocol
 
 root_path = Path(__file__).parent.parent.parent
 sys.path.append(str(root_path))
@@ -14,6 +14,9 @@ from search_agent.eval.metrics import exact_match, f1_score, citation_hit
 
 class BaselineLike(Protocol):
     def run(self, question: str) -> BaselineResult: ...
+
+
+ProgressCallback = Callable[[int, int, str, str], None]
 
 
 def load_jsonl(path: str) -> list[dict]:
@@ -61,15 +64,26 @@ def resolve_cited_doc_ids(
 def evaluate_baseline(
     baseline: BaselineLike,
     qa_rows: list[dict],
+    progress_callback: ProgressCallback | None = None,
 ) -> list[dict]:
     eval_rows = []
-    for qa in qa_rows:
+    total = len(qa_rows)
+    baseline_name = baseline.__class__.__name__
+
+    for sample_index, qa in enumerate(qa_rows, 1):
         question = qa["question"]
         gold_answer = qa["answer"]
         supporting_doc_ids = qa.get("supporting_doc_ids", [])
+        if progress_callback:
+            progress_callback(sample_index, total, baseline_name, "model-running")
+
         start_time = time.perf_counter()
         result = baseline.run(question=question)
         latency_seconds = time.perf_counter() - start_time
+
+        if progress_callback:
+            progress_callback(sample_index, total, result.method, "scoring")
+
         cited_doc_ids = resolve_cited_doc_ids(
             result.citations,
             result.retrieved_docs,
@@ -93,11 +107,23 @@ def evaluate_baseline(
                 cited_doc_ids=cited_doc_ids,
             ),
             "search_turns": result.search_turns,
+            "search_action_turns": result.search_action_turns,
+            "model_turns": result.model_turns,
+            "answer_reject_count": result.answer_reject_count,
+            "duplicate_search_count": result.duplicate_search_count,
+            "search_limit_count": result.search_limit_count,
+            "format_error_count": result.format_error_count,
+            "answer_constraint_reject_count": result.answer_constraint_reject_count,
+            "target_verifier_reject_count": result.target_verifier_reject_count,
+            "final_state": result.final_state,
             "latency_seconds": latency_seconds,
             "format_error": float(not result.answer),
         }
 
         eval_rows.append(row)
+        if progress_callback:
+            progress_callback(sample_index, total, result.method, "done")
+
     return eval_rows
 
 
@@ -117,6 +143,37 @@ def summarize_eval_rows(eval_rows: list[dict]) -> list[dict]:
                 "f1": sum(row["f1"] for row in rows) / count,
                 "citation_hit": sum(row["citation_hit"] for row in rows) / count,
                 "avg_search_turns": sum(row["search_turns"] for row in rows) / count,
+                "avg_search_action_turns": sum(
+                    row.get("search_action_turns", row.get("search_turns", 0))
+                    for row in rows
+                )
+                / count,
+                "avg_model_turns": sum(row.get("model_turns", 0) for row in rows)
+                / count,
+                "avg_answer_reject_count": sum(
+                    row.get("answer_reject_count", 0) for row in rows
+                )
+                / count,
+                "avg_duplicate_search_count": sum(
+                    row.get("duplicate_search_count", 0) for row in rows
+                )
+                / count,
+                "avg_search_limit_count": sum(
+                    row.get("search_limit_count", 0) for row in rows
+                )
+                / count,
+                "avg_format_error_count": sum(
+                    row.get("format_error_count", 0) for row in rows
+                )
+                / count,
+                "avg_answer_constraint_reject_count": sum(
+                    row.get("answer_constraint_reject_count", 0) for row in rows
+                )
+                / count,
+                "avg_target_verifier_reject_count": sum(
+                    row.get("target_verifier_reject_count", 0) for row in rows
+                )
+                / count,
                 "avg_latency_seconds": sum(row["latency_seconds"] for row in rows)
                 / count,
                 "format_error_rate": sum(row["format_error"] for row in rows) / count,

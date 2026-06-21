@@ -1,0 +1,669 @@
+LLM 不直接搜索文档。LLM 只负责决定下一步动作：要不要搜索、搜什么 query、什么时候回答。真正的检索由 LocalSearchTool -> HybridRetriever -> BM25 +
+  Dense 完成。                                                                                                                                   
+                                                                                                                                                 
+  核心文件：                                                                                                                                     
+                                                                                                                                                 
+  - Search-Agent/search_agent/agent/runtime.py:110：Agent 主循环                                                                                 
+  - Search-Agent/search_agent/agent/parser.py:23：解析 LLM 输出格式                                                                              
+  - Search-Agent/search_agent/agent/prompts.py:58：构造 prompt                                                                                   
+  - Search-Agent/search_agent/tools/search_tool.py:50：搜索工具封装                                                                              
+  - Search-Agent/search_agent/retriever/hybrid.py:12：混合检索                                                                                   
+  - Search-Agent/search_agent/retriever/bm25.py:17：BM25 检索                                                                                    
+  - Search-Agent/search_agent/retriever/dense.py:10：向量检索                                                                                    
+  - Search-Agent/search_agent/agent/judge.py:15：答案裁判                                                                                        
+                                                                                                                                                 
+  1. Agent 初始化                                                                                                                                
+                                                                                                                                                 
+  运行：                                                                                                                                         
+                                                                                                                                                 
+  python scripts\run_agent.py --question "Which city is the birthplace of the author of The Silent Harbor?"                                      
+                                                                                                                                                 
+  scripts/run_agent.py 会创建：                                                                                                                  
+                                                                                                                                                 
+  agent = AgentRuntime()                                                                                                                         
+  result = agent.run(args.question)                                                                                                              
+                                                                                                                                                 
+  AgentRuntime() 默认初始化三个东西：                                                                                                            
+                                                                                                                                                 
+  self.model = OllamaModel()                                                                                                                     
+  self.search_tool = LocalSearchTool()                                                                                                           
+  self.answer_judge = AnswerJudge()                                                                                                              
+                                                                                                                                                 
+  也就是：                                                                                                                                       
+                                                                                                                                                 
+  - OllamaModel：调用本地 Ollama 的 qwen3.5:4b                                                                                                   
+  - LocalSearchTool：本地文档搜索工具                                                                                                            
+  - AnswerJudge：用 LLM 判断答案是否真正回答了原问题                                                                                             
+                                                                                                                                                 
+  2. 本地检索器初始化                                                                                                                            
+                                                                                                                                                 
+  LocalSearchTool 默认读取：                                                                                                                     
+
+  data/processed/docs.jsonl                                                                                                                      
+                                                                                                                                                 
+  文档格式是 JSONL，每行一篇文档：                                                                                                               
+                                                                                                                                                 
+  {                                                                                                                                              
+    "doc_id": "doc001",                                                                                                                          
+    "title": "The Silent Harbor",                                                                                                                
+    "text": "The Silent Harbor is a novel written by Lena Moris...",                                                                             
+    "source": "synthetic"                                                                                                                        
+  }                                                                                                                                              
+                                                                                                                                                 
+  这些字段会经历几次转换。                                                                                                                       
+                                                                                                                                                 
+  原始字段：                                                                                                                                     
+                                                                                                                                                 
+  doc_id                                                                                                                                         
+  title                                                                                                                                          
+  text                                                                                                                                           
+  source                                                                                                                                         
+                                                                                                                                                 
+  进入检索器后变成 RetrievedDoc：                                                                                                                
+                                                                                                                                                 
+  RetrievedDoc(                                                                                                                                  
+      doc_id="doc001",                                                                                                                           
+      title="The Silent Harbor",                                                                                                                 
+      text="...",                                                                                                                                
+      source="synthetic",                                                                                                                        
+      score=...                                                                                                                                  
+  )                                                                                                                                              
+                                                                                                                                                 
+  进入搜索工具后变成 SearchResults：                                                                                                             
+                                                                                                                                                 
+  SearchResults(                                                                                                                                 
+      title="The Silent Harbor",                                                                                                                 
+      url="local://doc001",                                                                                                                      
+      snippet="...",                                                                                                                             
+      score=...                                                                                                                                  
+  )                                                                                                                                              
+                                                                                                                                                 
+  注意这里有字段格式变化：                                                                                                                       
+                                                                                                                                                 
+  doc_id: doc001                                                                                                                                 
+  变成                                                                                                                                           
+  url: local://doc001                                                                                                                            
+                                                                                                                                                 
+  text 字段也被展示成：                                                                                                                          
+                                                                                                                                                 
+  snippet                                                                                                                                        
+                                                                                                                                                 
+  所以 trace 里看到的是：                                                                                                                        
+                                                                                                                                                 
+  {                                                                                                                                              
+    "title": "The Silent Harbor",                                                                                                                
+    "url": "local://doc001",                                                                                                                     
+    "snippet": "...",                                                                                                                            
+    "score": 1.0                                                                                                                                 
+  }                                                                                                                                              
+                                                                                                                                                 
+  3. Agent 主循环                                                                                                                                
+                                                                                                                                                 
+  AgentRuntime.run(question) 内部维护两个核心变量：                                                                                              
+                                                                                                                                                 
+  trace = []                                                                                                                                     
+  trace_text = ""                                                                                                                                
+                                                                                                                                                 
+  区别是：                                                                                                                                       
+                                                                                                                                                 
+  - trace：最终返回给用户看的结构化日志                                                                                                          
+  - trace_text：下一轮 prompt 里给 LLM 看的历史上下文                                                                                            
+                                                                                                                                                 
+  每一轮循环做这几件事：                                                                                                                         
+                                                                                                                                                 
+  1. 构造 prompt                                                                                                                                 
+  2. 调用 Ollama                                                                                                                                 
+  3. 解析 LLM 输出                                                                                                                               
+  4. 如果是 search，执行检索                                                                                                                     
+  5. 如果是 answer，检查答案是否可接受                                                                                                           
+  6. 如果格式错误，写入错误反馈，让模型重试                                                                                                      
+                                                                                                                                                 
+  最多运行：                                                                                                                                     
+                                                                                                                                                 
+  max_model_turns = 8                                                                                                                            
+  max_search_turns = 3                                                                                                                           
+  max_context_chars = 6000                                                                                                                       
+                                                                                                                                                 
+  4. Prompt 构造                                                                                                                                 
+                                                                                                                                                 
+  build_prompt(question, trace_text) 会把三部分拼起来：                                                                                          
+                                                                                                                                                 
+  SYSTEM_PROMPT                                                                                                                                  
+                                                                                                                                                 
+  Question:                                                                                                                                      
+  用户问题                                                                                                                                       
+                                                                                                                                                 
+  Previous trace:                                                                                                                                
+  之前搜索和观察到的证据                                                                                                                         
+
+  Next response:                                                                                                                                 
+                                                                                                                                                 
+  当前 prompt 强制模型每轮只能输出一种动作：                                                                                                     
+                                                                                                                                                 
+  <think>short reasoning</think><search>search query</search>                                                                                    
+                                                                                                                                                 
+  或者：                                                                                                                                         
+                                                                                                                                                 
+  <think>short reasoning</think><answer>Brookhaven. [1]</answer>                                                                                 
+                                                                                                                                                 
+  核心规则是：                                                                                                                                   
+                                                                                                                                                 
+  - 没有 <observe> 时必须搜索                                                                                                                    
+  - 证据不足时继续搜索                                                                                                                           
+  - 不能凭记忆回答                                                                                                                               
+  - 多跳问题先搜中间实体，再搜最终属性                                                                                                           
+  - 最终答案必须是短答案 span + citation                                                                                                         
+  - citation 必须在 <answer> 标签里面                                                                                                            
+                                                                                                                                                 
+  5. Ollama 调用                                                                                                                                 
+                                                                                                                                                 
+  OllamaModel.generate(prompt) 会请求：                                                                                                          
+                                                                                                                                                 
+  http://localhost:11434/api/generate                                                                                                            
+                                                                                                                                                 
+  请求体里关键参数是：                                                                                                                           
+                                                                                                                                                 
+  {                                                                                                                                              
+    "model": "qwen3.5:4b",                                                                                                                       
+    "prompt": "...",                                                                                                                             
+    "stream": false,                                                                                                                             
+    "think": false,                                                                                                                              
+    "options": {                                                                                                                                 
+      "temperature": 0.0,                                                                                                                        
+      "num_predict": 192,                                                                                                                        
+      "repeat_penalty": 1.15                                                                                                                     
+    }                                                                                                                                            
+  }                                                                                                                                              
+                                                                                                                                                 
+  这里的 think: false 很重要。之前 qwen 可能把内容放到 thinking 字段，导致 response 为空。现在关闭 thinking 后，模型会直接把 XML 动作输出在      
+  response 里。                                                                                                                                  
+                                                                                                                                                 
+  6. LLM 输出格式解析                                                                                                                            
+                                                                                                                                                 
+  模型原始输出叫：                                                                                                                               
+                                                                                                                                                 
+  model_output                                                                                                                                   
+                                                                                                                                                 
+  例如：                                                                                                                                         
+                                                                                                                                                 
+  <think>I need the author first.</think><search>author of The Silent Harbor</search>                                                            
+                                                                                                                                                 
+  parse_model_output() 会提取：                                                                                                                  
+                                                                                                                                                 
+  action = "search"                                                                                                                              
+  content = "author of The Silent Harbor"                                                                                                        
+                                                                                                                                                 
+  如果输出是：                                                                                                                                   
+                                                                                                                                                 
+  <answer>Brookhaven. [1]</answer>                                                                                                               
+                                                                                                                                                 
+  会提取：                                                                                                                                       
+                                                                                                                                                 
+  action = "answer"                                                                                                                              
+  content = "Brookhaven. [1]"                                                                                                                    
+                                                                                                                                                 
+  这里有严格格式检查。                                                                                                                           
+                                                                                                                                                 
+  以下情况会被判定为 error：                                                                                                                     
+                                                                                                                                                 
+  <search>...</search><answer>...</answer>                                                                                                       
+                                                                                                                                                 
+  原因：一轮里同时搜索和回答。                                                                                                                   
+                                                                                                                                                 
+  <answer>Brookhaven.</answer>                                                                                                                   
+                                                                                                                                                 
+  原因：缺少 citation，例如 [1]。                                                                                                                
+                                                                                                                                                 
+  <answer>Brookhaven. [1]</answer>                                                                                                               
+  Some extra text                                                                                                                                
+                                                                                                                                                 
+  原因：标签外有额外文本。                                                                                                                       
+                                                                                                                                                 
+  <search></search>                                                                                                                              
+                                                                                                                                                 
+  原因：空搜索 query。                                                                                                                           
+                                                                                                                                                 
+  也就是说，parser.py 做的是 动作抽取 + 格式约束，不是检索。                                                                                     
+                                                                                                                                                 
+  7. Search 动作如何驱动检索                                                                                                                     
+                                                                                                                                                 
+  当解析结果是：                                                                                                                                 
+                                                                                                                                                 
+  parsed.action == "search"                                                                                                                      
+  parsed.content == "author of The Silent Harbor"                                                                                                
+                                                                                                                                                 
+  Agent 会执行：                                                                                                                                 
+                                                                                                                                                 
+  results = self.search_tool.search(parsed.content)                                                                                              
+                                                                                                                                                 
+  也就是把 LLM 生成的搜索 query 交给检索器。                                                                                                     
+
+  这里的关键点是：                                                                                                                               
+                                                                                                                                                 
+  LLM 决定搜什么                                                                                                                                 
+  检索器决定搜到哪些文档                                                                                                                         
+  Agent 把搜索结果转成 observe 再喂回 LLM                                                                                                        
+                                                                                                                                                 
+  8. BM25 检索过程                                                                                                                               
+                                                                                                                                                 
+  BM25 在 Search-Agent/search_agent/retriever/bm25.py:17。                                                                                       
+                                                                                                                                                 
+  初始化时，它读取所有 docs，然后为每篇文档构造文本：                                                                                            
+                                                                                                                                                 
+  doc["title"] + " " + doc["text"]                                                                                                               
+                                                                                                                                                 
+  例如：                                                                                                                                         
+                                                                                                                                                 
+  The Silent Harbor The Silent Harbor is a novel written by Lena Moris...                                                                        
+                                                                                                                                                 
+  然后分词：                                                                                                                                     
+                                                                                                                                                 
+  re.findall(r"[a-zA-Z0-9]+", text.lower())                                                                                                      
+                                                                                                                                                 
+  所以：                                                                                                                                         
+                                                                                                                                                 
+  "The Silent Harbor"                                                                                                                            
+                                                                                                                                                 
+  会变成：                                                                                                                                       
+                                                                                                                                                 
+  ["the", "silent", "harbor"]                                                                                                                    
+                                                                                                                                                 
+  注意：                                                                                                                                         
+                                                                                                                                                 
+  - 会转小写                                                                                                                                     
+  - 会去掉标点                                                                                                                                   
+  - 不去停用词                                                                                                                                   
+  - 当前分词规则主要适合英文、数字                                                                                                               
+  - 中文不会被这个正则很好地切分                                                                                                                 
+                                                                                                                                                 
+  查询也用同样方式处理：                                                                                                                         
+                                                                                                                                                 
+  author of The Silent Harbor                                                                                                                    
+                                                                                                                                                 
+  变成：                                                                                                                                         
+                                                                                                                                                 
+  ["author", "of", "the", "silent", "harbor"]                                                                                                    
+                                                                                                                                                 
+  然后：                                                                                                                                         
+                                                                                                                                                 
+  scores = self.bm25.get_scores(query_tokens)                                                                                                    
+                                                                                                                                                 
+  得到每篇文档的 BM25 原始分数，再按分数降序排序。                                                                                               
+                                                                                                                                                 
+  BM25 原始 score 例子：                                                                                                                         
+                                                                                                                                                 
+  {                                                                                                                                              
+    "doc_id": "doc001",                                                                                                                          
+    "title": "The Silent Harbor",                                                                                                                
+    "score": 9.290587753205152                                                                                                                   
+  }                                                                                                                                              
+                                                                                                                                                 
+  这个分数是关键词匹配相关性，不是概率。                                                                                                         
+                                                                                                                                                 
+  9. Dense 向量检索过程                                                                                                                          
+                                                                                                                                                 
+  Dense 检索在 Search-Agent/search_agent/retriever/dense.py:10。                                                                                 
+                                                                                                                                                 
+  它使用本地 embedding 模型：                                                                                                                    
+                                                                                                                                                 
+  D:\Files\PycharmProject\keyboard\shixi\models\Embedding\bge-base-en                                                                            
+                                                                                                                                                 
+  建索引时，每篇文档会被拼成：                                                                                                                   
+                                                                                                                                                 
+  f"{doc['title']}. {doc['text']}"                                                                                                               
+                                                                                                                                                 
+  例如：                                                                                                                                         
+                                                                                                                                                 
+  The Silent Harbor. The Silent Harbor is a novel written by Lena Moris...                                                                       
+                                                                                                                                                 
+  然后用 SentenceTransformer 编码：                                                                                                              
+                                                                                                                                                 
+  embeddings = model.encode(                                                                                                                     
+      texts,                                                                                                                                     
+      normalize_embeddings=True                                                                                                                  
+  )                                                                                                                                              
+                                                                                                                                                 
+  因为做了 normalize_embeddings=True，向量长度被归一化。                                                                                         
+                                                                                                                                                 
+  FAISS 使用：                                                                                                                                   
+                                                                                                                                                 
+  faiss.IndexFlatIP(dim)                                                                                                                         
+                                                                                                                                                 
+  IP 是 inner product。由于向量已经归一化，inner product 基本等价于 cosine similarity。                                                          
+                                                                                                                                                 
+  查询时：                                                                                                                                       
+                                                                                                                                                 
+  query_embedding = model.encode([query], normalize_embeddings=True)                                                                             
+  scores, indices = self.index.search(query_embedding, top_k)                                                                                    
+                                                                                                                                                 
+  Dense score 例子：                                                                                                                             
+                                                                                                                                                 
+  {                                                                                                                                              
+    "doc_id": "doc001",                                                                                                                          
+    "title": "The Silent Harbor",                                                                                                                
+    "score": 0.86000657081604                                                                                                                    
+  }                                                                                                                                              
+                                                                                                                                                 
+  这个分数是语义相似度，不是 BM25 分数。                                                                                                         
+                                                                                                                                                 
+  10. Hybrid 混合检索过程                                                                                                                        
+                                                                                                                                                 
+  Hybrid 在 Search-Agent/search_agent/retriever/hybrid.py:12。                                                                                   
+                                                                                                                                                 
+  当前默认权重：                                                                                                                                 
+                                                                                                                                                 
+  bm25_weight = 0.5                                                                                                                              
+  dense_weight = 0.5                                                                                                                             
+                                                                                                                                                 
+  一次搜索时，它会分别取候选：                                                                                                                   
+                                                                                                                                                 
+  bm25_docs = self.bm25.search(query, top_k=candidate_k)                                                                                         
+  dense_docs = self.dense.search(query, top_k=candidate_k)                                                                                       
+                                                                                                                                                 
+  默认：                                                                                                                                         
+                                                                                                                                                 
+  candidate_k = 20                                                                                                                               
+                                                                                                                                                 
+  然后分别对 BM25 和 Dense 的分数做 min-max 归一化：                                                                                             
+                                                                                                                                                 
+  normalized = (score - min_score) / (max_score - min_score)                                                                                     
+                                                                                                                                                 
+  如果一组分数全部一样，则全部设为：                                                                                                             
+                                                                                                                                                 
+  1.0                                                                                                                                            
+                                                                                                                                                 
+  接着按 doc_id 合并两边结果：                                                                                                                   
+                                                                                                                                                 
+  score = 0.5 * bm25_score + 0.5 * dense_score                                                                                                   
+                                                                                                                                                 
+  如果某篇文档只出现在 BM25 结果里，没有出现在 Dense 结果里：                                                                                    
+                                                                                                                                                 
+  dense_score = 0.0                                                                                                                              
+                                                                                                                                                 
+  反过来也一样。                                                                                                                                 
+                                                                                                                                                 
+  最后按 hybrid score 降序排列，返回 top_k。                                                                                                     
+                                                                                                                                                 
+  LocalSearchTool.search() 默认：                                                                                                                
+                                                                                                                                                 
+  top_k = 3                                                                                                                                      
+                                                                                                                                                 
+  所以 trace 里通常看到 3 条结果。                                                                                                               
+                                                                                                                                                 
+  非常重要：                                                                                                                                     
+  trace 里的 score 是 Hybrid 归一化合并后的分数，不是原始 BM25 分数，也不是原始 Dense 分数。                                                     
+                                                                                                                                                 
+  例如：                                                                                                                                         
+                                                                                                                                                 
+  {                                                                                                                                              
+    "title": "The Silent Harbor",                                                                                                                
+    "score": 1.0                                                                                                                                 
+  }                                                                                                                                              
+                                                                                                                                                 
+  这里的 1.0 是混合后的最终排序分数。                                                                                                            
+                                                                                                                                                 
+  11. SearchResults 到 observe 的格式转换                                                                                                        
+                                                                                                                                                 
+  检索结果返回后，Agent 会把它们写入 trace：                                                                                                     
+                                                                                                                                                 
+  step["search_results"] = [r.__dict__ for r in results]                                                                                         
+                                                                                                                                                 
+  所以 JSON 日志里是：                                                                                                                           
+                                                                                                                                                 
+  "search_results": [                                                                                                                            
+    {                                                                                                                                            
+      "title": "The Silent Harbor",                                                                                                              
+      "url": "local://doc001",                                                                                                                   
+      "snippet": "...",                                                                                                                          
+      "score": 1.0                                                                                                                               
+    }                                                                                                                                            
+  ]                                                                                                                                              
+                                                                                                                                                 
+  同时，Agent 会构造给 LLM 看的 <observe> 文本：                                                                                                 
+                                                                                                                                                 
+  observe = "\n".join(                                                                                                                           
+      f"[{i + 1}] {r.title}: {r.snippet} ({r.url})"                                                                                              
+      for i, r in enumerate(results)                                                                                                             
+  )                                                                                                                                              
+                                                                                                                                                 
+  也就是：                                                                                                                                       
+                                                                                                                                                 
+  <observe>                                                                                                                                      
+  [1] The Silent Harbor: The Silent Harbor is a novel written by Lena Moris. (...) (local://doc001)
+  [2] Obsidian Harbor: ...                                                                                                                       
+  [3] Mira Thale: ...                                                                                                                            
+  </observe>                                                                                                                                     
+                                                                                                                                                 
+  这里又有一个字段格式变化：                                                                                                                     
+                                                                                                                                                 
+  title + snippet + url                                                                                                                          
+  变成                                                                                                                                           
+  [rank] title: snippet (url)                                                                                                                    
+                                                                                                                                                 
+  其中 [1]、[2]、[3] 是当前这次搜索结果的排名编号。                                                                                              
+                                                                                                                                                 
+  它不是 doc_id。                                                                                                                                
+                                                                                                                                                 
+  例如：                                                                                                                                         
+                                                                                                                                                 
+  [1] The Silent Harbor ... (local://doc001)                                                                                                     
+                                                                                                                                                 
+  这里：                                                                                                                                         
+                                                                                                                                                 
+  [1] 是引用编号                                                                                                                                 
+  doc001 是真实文档 ID                                                                                                                           
+                                                                                                                                                 
+  12. Citation 的含义                                                                                                                            
+                                                                                                                                                 
+  最终答案里的：                                                                                                                                 
+                                                                                                                                                 
+  Brookhaven. [1]                                                                                                                                
+                                                                                                                                                 
+  [1] 指的是最近 <observe> 中的第 1 条结果。                                                                                                     
+                                                                                                                                                 
+  例如第二次搜索：                                                                                                                               
+                                                                                                                                                 
+  <search>Lena Moris birthplace</search>                                                                                                         
+  <observe>                                                                                                                                      
+  [1] Lena Moris: Lena Moris was born in Brookhaven. (...) (local://doc002)                                                                      
+  [2] Mira Thale: ...                                                                                                                            
+  [3] Kellan Roux: ...                                                                                                                           
+  </observe>                                                                                                                                     
+                                                                                                                                                 
+  此时答案：                                                                                                                                     
+                                                                                                                                                 
+  <answer>Brookhaven. [1]</answer>                                                                                                               
+                                                                                                                                                 
+  意思是引用：                                                                                                                                   
+                                                                                                                                                 
+  local://doc002                                                                                                                                 
+                                                                                                                                                 
+  注意：运行时 runtime.py 只检查答案是否有 [数字]，不直接把 [1] 转成 doc002。                                                                    
+  在评测时，eval/runners.py 才会把 citation 映射到 retrieved docs。                                                                              
+                                                                                                                                                 
+  13. 多跳问题的完整例子                                                                                                                         
+                                                                                                                                                 
+  问题：                                                                                                                                         
+                                                                                                                                                 
+  Which city is the birthplace of the author of The Silent Harbor?                                                                               
+                                                                                                                                                 
+  这个问题有两跳：                                                                                                                               
+                                                                                                                                                 
+  The Silent Harbor -> author -> Lena Moris                                                                                                      
+  Lena Moris -> birthplace -> Brookhaven                                                                                                         
+                                                                                                                                                 
+  第 0 轮：                                                                                                                                      
+                                                                                                                                                 
+  LLM 看到没有 observe，所以必须搜索：                                                                                                           
+                                                                                                                                                 
+  <search>author of The Silent Harbor</search>                                                                                                   
+                                                                                                                                                 
+  检索器返回：                                                                                                                                   
+                                                                                                                                                 
+  [1] The Silent Harbor: The Silent Harbor is a novel written by Lena Moris...                                                                   
+                                                                                                                                                 
+  Agent 把它加入 trace_text。                                                                                                                    
+                                                                                                                                                 
+  第 1 轮：                                                                                                                                      
+                                                                                                                                                 
+  LLM 看到作者是 Lena Moris，但还没有出生地，所以继续搜索：                                                                                      
+                                                                                                                                                 
+  <search>Lena Moris birthplace</search>                                                                                                         
+                                                                                                                                                 
+  检索器返回：                                                                                                                                   
+                                                                                                                                                 
+  [1] Lena Moris: Lena Moris was born in Brookhaven...                                                                                           
+                                                                                                                                                 
+  第 2 轮：                                                                                                                                      
+                                                                                                                                                 
+  LLM 看到最终属性已经出现，于是回答：                                                                                                           
+                                                                                                                                                 
+  <answer>Brookhaven. [1]</answer>                                                                                                               
+                                                                                                                                                 
+  Agent 检查通过后返回：                                                                                                                         
+                                                                                                                                                 
+  {                                                                                                                                              
+    "answer": "Brookhaven. [1]",                                                                                                                 
+    "trace": [...]                                                                                                                               
+  }                                                                                                                                              
+                                                                                                                                                 
+  14. 答案校验过程                                                                                                                               
+                                                                                                                                                 
+  当模型输出 <answer> 后，Agent 不会立刻接受。                                                                                                   
+                                                                                                                                                 
+  先做本地规则校验：                                                                                                                             
+                                                                                                                                                 
+  _answer_supported_by_observe(answer, trace_text)                                                                                               
+                                                                                                                                                 
+  它会做这些处理：                                                                                                                               
+                                                                                                                                                 
+  1. 提取所有 <observe>...</observe> 内容                                                                                                        
+  2. 全部转小写                                                                                                                                  
+  3. 合并多余空白                                                                                                                                
+  4. 检查是否有 citation                                                                                                                         
+  5. 删除答案里的 [1]                                                                                                                            
+  6. 用正则提取答案关键词                                                                                                                        
+  7. 去掉停用词                                                                                                                                  
+  8. 判断答案关键词是否出现在 observe 里                                                                                                         
+                                                                                                                                                 
+  例如：                                                                                                                                         
+                                                                                                                                                 
+  Brookhaven. [1]                                                                                                                                
+                                                                                                                                                 
+  处理后：                                                                                                                                       
+                                                                                                                                                 
+  brookhaven                                                                                                                                     
+                                                                                                                                                 
+  如果 observe_text 里有 brookhaven，本地支持性检查基本通过。                                                                                    
+                                                                                                                                                 
+  但这个规则比较宽松，可能会接受中间实体。例如：                                                                                                 
+                                                                                                                                                 
+  Lena Moris. [1]                                                                                                                                
+                                                                                                                                                 
+  它确实出现在 observe 里，但它不是问题要的城市。                                                                                                
+                                                                                                                                                 
+  所以还有第二层：                                                                                                                               
+                                                                                                                                                 
+  AnswerJudge                                                                                                                                    
+                                                                                                                                                 
+  它会调用 LLM 判断：                                                                                                                            
+                                                                                                                                                 
+  这个答案是否直接回答了原问题？                                                                                                                 
+  是否只是中间事实？                                                                                                                             
+  是否被 observations 支持？                                                                                                                     
+                                                                                                                                                 
+  如果 Judge 认为答案只是中间事实，会拒绝。                                                                                                      
+  拒绝后 Agent 会把反馈写进 trace_text：                                                                                                         
+                                                                                                                                                 
+  Answer rejected: ...                                                                                                                           
+  If the current evidence does not contain the requested final answer,                                                                           
+  you must issue another <search> for the missing entity or attribute.                                                                           
+                                                                                                                                                 
+  下一轮 LLM 就会继续搜索。                                                                                                                      
+                                                                                                                                                 
+  15. trace 中每个字段的意义                                                                                                                     
+                                                                                                                                                 
+  一次 search step 大概长这样：                                                                                                                  
+                                                                                                                                                 
+  {                                                                                                                                              
+    "turn": 0,                                                                                                                                   
+    "search_turns": 1,                                                                                                                           
+    "max_search_turns": 3,                                                                                                                       
+    "context_chars": 0,                                                                                                                          
+    "context_truncated": false,                                                                                                                  
+    "prompt_chars": 2548,                                                                                                                        
+    "prompt": "...",                                                                                                                             
+    "model_output": "<search>author of The Silent Harbor</search>",                                                                              
+    "action": "search",                                                                                                                          
+    "content": "author of The Silent Harbor",                                                                                                    
+    "error": null,                                                                                                                               
+    "search_results": [...]                                                                                                                      
+  }                                                                                                                                              
+                                                                                                                                                 
+  字段解释：                                                                                                                                     
+                                                                                                                                                 
+  - turn：第几次模型调用                                                                                                                         
+  - search_turns：已经执行了几次搜索                                                                                                             
+  - max_search_turns：最多允许几次搜索，当前是 3                                                                                                 
+  - context_chars：本轮传给 prompt 的历史 trace 长度                                                                                             
+  - context_truncated：历史是否被截断                                                                                                            
+  - prompt_chars：完整 prompt 字符数                                                                                                             
+  - prompt：实际发给模型的完整 prompt                                                                                                            
+  - model_output：模型原始输出                                                                                                                   
+  - action：parser 解析出的动作，可能是 search、answer、error                                                                                    
+  - content：解析出的搜索 query 或最终答案                                                                                                       
+  - error：格式错误原因                                                                                                                          
+  - search_results：搜索工具返回的结构化结果                                                                                                     
+                                                                                                                                                 
+  answer step 会多这些字段：                                                                                                                     
+                                                                                                                                                 
+  {                                                                                                                                              
+    "accepted": true,                                                                                                                            
+    "reject_reason": "",                                                                                                                         
+    "judge_accepted": true,                                                                                                                      
+    "judge_reason": "..."                                                                                                                        
+  }                                                                                                                                              
+                                                                                                                                                 
+  含义是：                                                                                                                                       
+                                                                                                                                                 
+  - accepted：最终是否接受该答案                                                                                                                 
+  - reject_reason：如果拒绝，拒绝原因                                                                                                            
+  - judge_accepted：LLM judge 是否接受                                                                                                           
+  - judge_reason：judge 的解释                                                                                                                   
+                                                                                                                                                 
+  16. 当前检索流程的关键特点                                                                                                                     
+                                                                                                                                                 
+  你的项目当前已经不是简单 RAG，而是：                                                                                                           
+                                                                                                                                                 
+  LLM 规划搜索 query                                                                                                                             
+  -> Hybrid Retriever 搜索                                                                                                                       
+  -> observe 注入上下文                                                                                                                          
+  -> LLM 决定继续搜索还是回答                                                                                                                    
+  -> 本地规则 + LLM judge 校验答案                                                                                                               
+                                                                                                                                                 
+  它和 single-shot RAG 的区别是：                                                                                                                
+                                                                                                                                                 
+  single-shot-rag:                                                                                                                               
+  问题 -> 搜一次 -> 回答                                                                                                                         
+                                                                                                                                                 
+  search-agent:                                                                                                                                  
+  问题 -> 搜中间实体 -> 观察 -> 再搜最终属性 -> 观察 -> 回答                                                                                     
+                                                                                                                                                 
+  这也是为什么它在多跳问题上比 single-shot-rag 更强。                                                                                            
+                                                                                                                                                 
+  17. 当前实现的局限                                                                                                                             
+                                                                                                                                                 
+  几个需要你面试时主动说明的点：                                                                                                                 
+                                                                                                                                                 
+  - BM25 tokenizer 当前偏英文，中文检索要换中文分词或字符 n-gram。                                                                               
+  - Dense 默认使用 bge-base-en；切换 embedding 模型后需要重新构建 FAISS index。                                                       
+  - Reranker 当前是 placeholder，还没有真正重排。                                                                                                
+  - citation [1] 是 observe 内排名，不是全局 doc_id。                                                                                            
+  - 本地支持性检查是关键词重合，不是严格事实验证，所以需要 AnswerJudge 兜底。                                                                    
+  - BM25 每次初始化 Agent 时会在内存里重建；Dense FAISS index 是提前构建并从磁盘加载。
+
+
+
+
+
+怎么压缩记忆？

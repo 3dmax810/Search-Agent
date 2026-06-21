@@ -3,7 +3,7 @@
   "embedding_model_path": "D:\\Files\\PycharmProject\\keyboard\\shixi\\models\\Embedding\\bge-base-zh",
   "index_path": "D:\\Files\\PycharmProject\\keyboard\\shixi\\Search-Agent\\data\\index\\faiss.index",
   "meta_path": "D:\\Files\\PycharmProject\\keyboard\\shixi\\Search-Agent\\data\\index\\dense_docs.json",
-  "doc_count": 50,
+  "doc_count": 200,
   "top_k": 3,
   "smoke_results": {
     "author of The Silent Harbor": [

@@ -26,10 +26,13 @@ st.set_page_config(
 
 
 @st.cache_resource(show_spinner="Loading Search-Agent...")
-def get_agent(use_answer_judge: bool) -> AgentRuntime:
+def get_agent(use_answer_judge: bool, use_memory: bool) -> AgentRuntime:
     from search_agent.agent.runtime import AgentRuntime
 
-    return AgentRuntime(use_answer_judge=use_answer_judge)
+    return AgentRuntime(
+        use_answer_judge=use_answer_judge,
+        use_memory=use_memory,
+    )
 
 
 @st.cache_data(show_spinner=False)
@@ -230,6 +233,7 @@ def run_agent_panel() -> None:
 
     with st.sidebar:
         use_answer_judge = st.toggle("Answer judge", value=True)
+        use_memory = st.toggle("Memory", value=True)
         show_prompts = st.toggle("Show prompts", value=False)
         selected_question = st.selectbox(
             "Example question",
@@ -243,7 +247,10 @@ def run_agent_panel() -> None:
     )
 
     if st.button("Run Search-Agent", type="primary"):
-        agent = get_agent(use_answer_judge=use_answer_judge)
+        agent = get_agent(
+            use_answer_judge=use_answer_judge,
+            use_memory=use_memory,
+        )
         with st.spinner("Running multi-turn search..."):
             st.session_state["agent_result"] = agent.run(question)
 
@@ -258,11 +265,14 @@ def run_agent_panel() -> None:
     st.markdown("**Final answer**")
     st.success(answer)
 
-    cols = st.columns(4)
+    memory_used = any(step.get("memory_used") for step in trace)
+
+    cols = st.columns(5)
     cols[0].metric("turns", stats["turns"])
     cols[1].metric("search turns", stats["search_turns"])
     cols[2].metric("format errors", stats["format_errors"])
     cols[3].metric("rejected answers", stats["rejected_answers"])
+    cols[4].metric("memory", "on" if memory_used else "off")
 
     st.markdown("**Trace**")
     show_trace(trace, show_prompts=show_prompts)

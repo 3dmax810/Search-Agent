@@ -67,6 +67,31 @@ def test_evaluate_baseline():
     assert rows[0]["search_turns"] == 1
 
 
+def test_evaluate_baseline_reports_progress():
+    qa_rows = [
+        {
+            "question": "Which city is the birthplace of the author of The Silent Harbor?",
+            "answer": "Brookhaven",
+            "supporting_doc_ids": ["doc001", "doc002"],
+            "type": "multi-hop",
+        }
+    ]
+    events = []
+
+    def collect_progress(sample_index, total, method, stage):
+        events.append((sample_index, total, method, stage))
+
+    evaluate_baseline(
+        FakeBaseline(),
+        qa_rows,
+        progress_callback=collect_progress,
+    )
+
+    assert events[0] == (1, 1, "FakeBaseline", "model-running")
+    assert events[1] == (1, 1, "fake", "scoring")
+    assert events[2] == (1, 1, "fake", "done")
+
+
 def test_summarize_eval_rows():
     rows = [
         {

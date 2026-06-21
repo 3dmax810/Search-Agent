@@ -77,8 +77,8 @@ Final cited answer
 The current evaluation uses a synthetic multi-hop QA dataset.
 
 ```text
-data/processed/docs.jsonl    50 local documents
-data/eval/qa.jsonl           20 multi-hop QA samples
+data/processed/docs.jsonl    200 local documents
+data/eval/qa.jsonl           100 multi-hop QA samples
 ```
 
 Example QA sample:
@@ -92,7 +92,7 @@ Example QA sample:
 }
 ```
 
-The dataset was generated for controlled engineering validation. It is intentionally small and synthetic, so it should be treated as a development benchmark rather than a real-world benchmark.
+The dataset was generated for controlled engineering validation. It is synthetic, so it should be treated as a development benchmark rather than a real-world benchmark. The first 50 documents and first 20 QA rows are the original smoke-test set; the remaining rows expand coverage across authors, actors, founders, singers, scientists, inventions, awards, mayors, and several three-hop chains.
 
 ## Retrieval
 
@@ -110,10 +110,20 @@ HybridRetriever
   score = 0.5 * bm25_norm + 0.5 * dense_norm
 ```
 
+Supporting-document retrieval on the expanded 100-question synthetic set:
+
+| Retriever | Supporting-doc Hit@5 |
+|---|---:|
+| BM25 | 99/100 = 99.00% |
+| Dense | 20/100 = 20.00% |
+| Hybrid | 100/100 = 100.00% |
+
+The dense-only score above was recorded before switching the default embedding model to `bge-base-en`. Rebuild the FAISS index after changing the embedding model before comparing dense or hybrid results.
+
 The current dense model path is:
 
 ```text
-../models/Embedding/bge-base-zh
+../models/Embedding/bge-base-en
 ```
 
 The dense index is saved under:
@@ -125,7 +135,7 @@ data/index/dense_docs.json
 
 ## Evaluation Results
 
-Evaluation on all 20 synthetic multi-hop QA samples:
+Evaluation on the original 20-sample synthetic multi-hop QA benchmark:
 
 | Method | EM | F1 | Citation Hit | Avg Search Turns | Avg Latency | Format Error Rate |
 |---|---:|---:|---:|---:|---:|---:|
@@ -274,8 +284,8 @@ search_agent/eval/runners.py       Evaluation runner utilities
 
 ## Limitations
 
-- The current dataset is synthetic and small.
-- Dense retrieval uses `bge-base-zh` on English synthetic text, so semantic retrieval quality is not ideal.
+- The current dataset is synthetic and should be validated against a real-world benchmark before making broad claims.
+- Dense and hybrid retrieval results depend on the embedding model used to build `faiss.index`; rebuild the index after switching models.
 - The answer judge improves correctness but adds latency.
 - Search-Agent is more accurate on multi-hop QA, but slower than single-shot RAG.
 - The reranker is currently a placeholder and can be replaced with a cross-encoder such as `bge-reranker-base`.
@@ -285,6 +295,40 @@ search_agent/eval/runners.py       Evaluation runner utilities
 
 - Add a stronger answer-completeness judge.
 - Replace the placeholder reranker with a real cross-encoder reranker.
+- Re-run full evaluation on the expanded 100-question synthetic benchmark.
 - Evaluate on HotpotQA or a larger Wikipedia-derived corpus.
-- Add a Streamlit dashboard for trace visualization.
 - Add SFT traces to improve format following and multi-hop search behavior.
+
+
+[
+  {
+    "method": "no-search",
+    "count": 100,
+    "em": 0.0,
+    "f1": 0.023666666666666662,
+    "citation_hit": 0.0,
+    "avg_search_turns": 0.0,
+    "avg_latency_seconds": 3.152682475000038,
+    "format_error_rate": 0.0
+  },
+  {
+    "method": "single-shot-rag",
+    "count": 100,
+    "em": 0.02,
+    "f1": 0.027874873353596757,
+    "citation_hit": 0.41,
+    "avg_search_turns": 1.0,
+    "avg_latency_seconds": 3.9160853659999337,
+    "format_error_rate": 0.0
+  },
+  {
+    "method": "search-agent",
+    "count": 100,
+    "em": 0.8,
+    "f1": 0.8,
+    "citation_hit": 0.89,
+    "avg_search_turns": 2.18,
+    "avg_latency_seconds": 16.120532632000195,
+    "format_error_rate": 0.0
+  }
+]

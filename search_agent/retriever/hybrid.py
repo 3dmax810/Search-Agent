@@ -6,7 +6,7 @@ sys.path.append(str(root_path))
 
 from search_agent.retriever.bm25 import BM25Retriever, RetrievedDoc
 from search_agent.retriever.dense import DenseRetriever
-from search_agent.retriever.rerank import Reranker
+from search_agent.retriever.rerank import CrossEncoderReranker
 
 
 class HybridRetriever:
@@ -19,6 +19,9 @@ class HybridRetriever:
         bm25_weight: float = 0.5,
         dense_weight: float = 0.5,
         use_reranker: bool = False,
+        reranker_model_path: str | Path | None = None,
+        reranker_batch_size: int = 32,
+        reranker_max_length: int = 512,
     ):
         self.bm25 = BM25Retriever(docs_path)
         self.dense = DenseRetriever(
@@ -29,7 +32,18 @@ class HybridRetriever:
         )
         self.bm25_weight = bm25_weight
         self.dense_weight = dense_weight
-        self.reranker = Reranker() if use_reranker else None
+        self.reranker = None
+
+        if use_reranker:
+            if reranker_model_path is None:
+                raise ValueError(
+                    "reranker_model_path is required when use_reranker=True"
+                )
+            self.reranker = CrossEncoderReranker(
+                model_path=reranker_model_path,
+                batch_size=reranker_batch_size,
+                max_length=reranker_max_length,
+            )
 
     def _normalize_scores(self, docs: list[RetrievedDoc]) -> dict[str, float]:
         if not docs:

@@ -1,58 +1,58 @@
 {
   "retriever": "bm25",
-  "docs_path": "D:\\Files\\PycharmProject\\keyboard\\shixi\\Search-Agent\\data\\processed\\docs.jsonl",
-  "doc_count": 50,
+  "docs_path": "data\\processed\\docs.jsonl",
+  "doc_count": 200,
   "top_k": 3,
   "smoke_results": {
     "author of The Silent Harbor": [
       {
         "doc_id": "doc001",
         "title": "The Silent Harbor",
-        "score": 9.290587753205152
+        "score": 12.322158511383925
       },
       {
-        "doc_id": "doc047",
-        "title": "Obsidian Harbor",
-        "score": 4.26263806739223
+        "doc_id": "doc091",
+        "title": "Amber Harbor 20 Effect",
+        "score": 5.463642519873573
       },
       {
-        "doc_id": "doc046",
-        "title": "Mira Thale",
-        "score": 3.676540797517527
+        "doc_id": "doc171",
+        "title": "Amber Harbor 60 Effect",
+        "score": 5.463642519873573
       }
     ],
     "Lena Moris birthplace": [
       {
         "doc_id": "doc002",
         "title": "Lena Moris",
-        "score": 8.513280604443455
+        "score": 12.708015897406465
       },
       {
         "doc_id": "doc001",
         "title": "The Silent Harbor",
-        "score": 5.197699726103519
+        "score": 7.816948757785375
       },
       {
         "doc_id": "doc048",
         "title": "Kellan Roux",
-        "score": 3.2627798187756554
+        "score": 4.884397713975668
       }
     ],
     "Blue Orbit actor birthplace": [
       {
-        "doc_id": "doc005",
-        "title": "Blue Orbit",
-        "score": 9.743241564562197
-      },
-      {
         "doc_id": "doc048",
         "title": "Kellan Roux",
-        "score": 7.110093052181176
+        "score": 10.344774674172825
       },
       {
-        "doc_id": "doc046",
-        "title": "Mira Thale",
-        "score": 3.1179533324421533
+        "doc_id": "doc005",
+        "title": "Blue Orbit",
+        "score": 9.730088425783123
+      },
+      {
+        "doc_id": "doc057",
+        "title": "Distant Orbit 03 Album",
+        "score": 5.2528624564271595
       }
     ]
   }

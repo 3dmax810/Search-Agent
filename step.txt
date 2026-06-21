@@ -1,418 +1,48 @@
-# Search-Agent 实施路线
-
-## 0. 项目定位
-
-项目目标：
-基于 Search-R1 的核心思想，做一个「多轮搜索增强推理 Agent」项目，使 LLM 能在回答复杂问题时自主决定是否搜索、搜索什么、如何利用搜索结果继续推理，并最终输出带证据引用的答案。
-
-简历定位：
-不要把它包装成普通 RAG Demo，而是包装成一个具备 Agent runtime、混合检索、自动评测、轻量训练/优化和可视化演示的完整工程项目。
-
-核心亮点：
-1. 支持模型在推理过程中动态调用搜索工具。
-2. 支持多轮 search-observe-reason-answer 交互。
-3. 构建 BM25 + Dense Retrieval + Reranker 的混合检索系统。
-4. 建立 no-search、single-shot RAG、ReAct、Search-Agent 的统一评测框架。
-5. 可选实现轻量 LoRA / RL 优化，使用答案正确性、引用支持度、搜索成本作为 reward。
-
-## 1. 推荐技术栈
-
-基础工程：
-- Python 3.10+
-- FastAPI：提供 Agent 和 Search API
-- Streamlit 或 React：展示推理轨迹和评测结果
-- pytest：单元测试
-- loguru / structlog：轨迹日志
-
-模型推理：
-- Transformers：本地小模型调试
-- vLLM：后续高吞吐推理
-- 推荐模型：Qwen2.5-1.5B-Instruct / Qwen2.5-3B-Instruct / Llama-3.2-3B-Instruct
-
-检索：
-- BM25：rank-bm25 或 Elasticsearch
-- Dense Retrieval：sentence-transformers + FAISS
-- Embedding：bge-m3 / bge-small-en-v1.5 / bge-small-zh-v1.5
-- Reranker：bge-reranker-base
-
-训练优化：
-- PEFT / LoRA
-- TRL 或 verl
-- datasets
-- wandb 或 mlflow
-
-评测数据：
-- HotpotQA：多跳问答，优先使用
-- Natural Questions：开放域问答
-- TriviaQA：事实型问答
-- 2WikiMultiHopQA：多跳验证
-
-## 2. 目录结构
-
-建议创建如下结构：
-
-Search-Agent/
-  README.md
-  step.txt
-  requirements.txt
-  configs/
-    agent.yaml
-    retriever.yaml
-    eval.yaml
-  data/
-    raw/
-    processed/
-    index/
-  search_agent/
-    __init__.py
-    agent/
-      runtime.py
-      parser.py
-      prompts.py
-      memory.py
-    retriever/
-      bm25.py
-      dense.py
-      hybrid.py
-      rerank.py
-    tools/
-      search_tool.py
-      citation.py
-    api/
-      main.py
-      schemas.py
-    eval/
-      metrics.py
-      runners.py
-      baselines.py
-    training/
-      build_traces.py
-      rewards.py
-      sft.py
-      rl.py
-  scripts/
-    build_index.py
-    run_agent.py
-    run_eval.py
-    run_api.py
-  web/
-    app.py
-  tests/
-    test_parser.py
-    test_retriever.py
-    test_agent_loop.py
-
-## 3. 第一阶段：MVP Agent Runtime
-
-目标：
-先不训练模型，做出一个能跑通的 Search-Agent 推理闭环。
-
-输入：
-用户问题，例如：
-"Which city is the birthplace of the author of The Old Man and the Sea?"
-
-Agent 输出格式：
-<think>我需要先找到 The Old Man and the Sea 的作者。</think>
-<search>author of The Old Man and the Sea</search>
-<observe>搜索结果...</observe>
-<think>作者是 Ernest Hemingway，需要查他的出生城市。</think>
-<search>Ernest Hemingway birthplace</search>
-<observe>搜索结果...</observe>
-<answer>Ernest Hemingway was born in Oak Park, Illinois.</answer>
-
-实现任务：
-1. 实现 `parser.py`
-   - 解析 `<search>...</search>`
-   - 解析 `<answer>...</answer>`
-   - 检测格式错误
-
-2. 实现 `runtime.py`
-   - 维护循环：model -> parse -> search -> observe -> model
-   - 设置最大搜索轮数，例如 max_search_turns=3
-   - 设置最大上下文长度
-   - 记录每一轮 trace
-
-3. 实现 `search_tool.py`
-   - 先用本地 mock search，确保 Agent loop 可跑通
-   - 返回结构化结果：title、url、snippet、score
-
-4. 实现 `prompts.py`
-   - 约束模型只能使用 `<search>` 或 `<answer>`
-   - 要求最终答案必须基于 observe 内容
-   - 要求最终答案带引用编号
-
-验收标准：
-1. 输入一个问题后，Agent 至少能完成 search -> observe -> answer。
-2. trace 中能看到每一轮 query、搜索结果、模型输出。
-3. 格式错误不会导致程序崩溃，而是进入 retry 或 fallback。
-
-## 4. 第二阶段：本地混合检索系统
-
-目标：
-把 mock search 替换成真正可用的本地搜索引擎。
-
-实现任务：
-1. 准备语料
-   - 优先使用 HotpotQA 支持文档或 Wikipedia 小规模语料
-   - 转换为 JSONL：
-     {"doc_id": "...", "title": "...", "text": "...", "source": "..."}
-
-2. 文档切分
-   - 每个 chunk 200-500 tokens
-   - 保留 title、doc_id、chunk_id、source
-
-3. BM25 检索
-   - 实现 `retriever/bm25.py`
-   - 支持 top_k 参数
-
-4. Dense 检索
-   - 实现 `retriever/dense.py`
-   - 使用 embedding 模型生成向量
-   - 使用 FAISS 保存和加载索引
-
-5. Hybrid 检索
-   - 实现 `retriever/hybrid.py`
-   - 合并 BM25 和 Dense 分数
-   - 默认策略：score = 0.5 * bm25_norm + 0.5 * dense_norm
-
-6. Rerank
-   - 实现 `retriever/rerank.py`
-   - 对 hybrid top 20 做 rerank，返回 top 5
-
-验收标准：
-1. `python scripts/build_index.py` 能生成本地索引。
-2. `python scripts/run_agent.py --question "..."` 能调用本地检索。
-3. 每条最终答案至少能展示引用来源。
-
-## 5. 第三阶段：Baseline 和自动评测
-
-目标：
-让项目具备简历和面试中最有说服力的量化结果。
-
-Baseline：
-1. No-search LLM
-   - 只让模型直接回答。
-
-2. Single-shot RAG
-   - 先检索一次，再让模型回答。
-
-3. ReAct Search Agent
-   - 使用固定 ReAct prompt，让模型 Thought/Action/Observation 循环。
-
-4. Search-Agent
-   - 使用 Search-R1 风格的 search/observe/reason/answer 流程。
-
-指标：
-1. EM：Exact Match
-2. F1：答案 token-level F1
-3. Citation Precision：答案引用是否真的支持结论
-4. Avg Search Turns：平均搜索轮次
-5. Latency：平均响应时间
-6. Token Cost：平均 token 消耗
-7. Format Error Rate：格式错误率
-
-实现任务：
-1. 实现 `eval/metrics.py`
-2. 实现 `eval/baselines.py`
-3. 实现 `eval/runners.py`
-4. 实现 `scripts/run_eval.py`
-5. 输出 `results/eval_summary.csv`
-
-验收标准：
-1. 能在 100-500 条样本上跑完整评测。
-2. 输出四种方法的对比表。
-3. README 中展示核心指标，例如：
-   - Search-Agent 比 single-shot RAG 在 HotpotQA 子集 F1 提升 X%
-   - 平均搜索轮次控制在 2-3 次
-   - 格式错误率低于 5%
-
-## 6. 第四阶段：轻量训练和优化
-
-目标：
-在算力有限的情况下实现一个可信的训练/优化版本，不强行复现 Search-R1 全量训练。
-
-推荐路线：
-先做 SFT，再做轻量 RL 或 preference optimization。
-
-6.1 构造训练轨迹
-
-实现 `training/build_traces.py`：
-1. 从 HotpotQA 样本中抽取 question、supporting facts、answer。
-2. 自动构造 search trace：
-   - 第一次搜索实体或问题核心名词。
-   - 第二次搜索关联实体。
-   - 最后生成 answer。
-3. 生成训练格式：
-   {"question": "...", "trajectory": "<think>...</think><search>...</search>...<answer>...</answer>"}
-
-6.2 SFT
-
-实现 `training/sft.py`：
-1. 使用 Qwen2.5-1.5B-Instruct + LoRA。
-2. 只训练模型生成的 think/search/answer 部分。
-3. observe 中的检索结果只作为上下文，不作为 loss 目标。
-
-验收标准：
-1. SFT 后模型格式遵循率提升。
-2. Format Error Rate 明显下降。
-3. 搜索 query 更短、更聚焦。
-
-6.3 Reward 设计
-
-实现 `training/rewards.py`：
-1. Answer Reward
-   - final answer 与 gold answer 的 EM/F1。
-
-2. Format Reward
-   - 是否正确生成 `<search>` 和 `<answer>`。
-   - 是否没有生成非法标签。
-
-3. Citation Reward
-   - answer 中的结论是否能被 observe 片段支持。
-
-4. Cost Penalty
-   - 搜索次数越多扣分。
-   - 超过 max_search_turns 直接扣分。
-
-总 reward 示例：
-reward = 1.0 * answer_f1 + 0.2 * format_score + 0.3 * citation_score - 0.1 * search_turns
-
-6.4 轻量 RL
-
-可选实现 `training/rl.py`：
-1. 使用 TRL / verl 做 GRPO 或 PPO。
-2. 每个问题采样多个 trajectories。
-3. 用 reward 函数筛选更好的搜索行为。
-4. 小规模训练即可，重点展示方法闭环。
-
-验收标准：
-1. RL/SFT 版本与未训练 Agent 有指标对比。
-2. 至少展示 3 个 case study：
-   - 无搜索回答错误，Search-Agent 搜索后正确。
-   - single-shot RAG 证据不足，多轮搜索补齐。
-   - 搜索过多被 cost penalty 约束。
-
-## 7. 第五阶段：API 和可视化 Demo
-
-目标：
-让项目可以被面试官快速理解和演示。
-
-FastAPI：
-1. `POST /search`
-   - 输入 query
-   - 返回 top_k 搜索结果
-
-2. `POST /agent/answer`
-   - 输入 question
-   - 返回 answer、citations、trace、metrics
-
-3. `POST /eval/run`
-   - 输入 dataset 和 sample_size
-   - 返回评测任务 id
-
-Dashboard：
-1. 左侧输入问题。
-2. 中间展示 Agent 推理轨迹：
-   - 第几轮 search
-   - query
-   - observe snippets
-   - model thought
-3. 右侧展示最终答案和引用。
-4. 评测页面展示 baseline 对比表和图表。
-
-验收标准：
-1. `python scripts/run_api.py` 能启动服务。
-2. `streamlit run web/app.py` 能打开演示页面。
-3. Dashboard 能清楚展示 Search-Agent 和普通 RAG 的差异。
-
-## 8. 第六阶段：README 和简历包装
-
-README 必须包含：
-1. 项目背景：Search-R1 启发的多轮搜索增强推理。
-2. 系统架构图：User -> Agent Runtime -> Search Tool -> Retriever -> Evidence -> Answer。
-3. 快速启动命令。
-4. 数据集和评测指标。
-5. baseline 对比表。
-6. case study。
-7. 局限性：
-   - 小模型推理能力有限。
-   - 本地语料覆盖度有限。
-   - RL 训练是轻量近似，不等同于完整 Search-R1 复现。
-
-简历描述：
-1. 基于 Search-R1 思路实现多轮搜索增强推理 Agent，使 LLM 可自主生成搜索查询、调用本地检索系统并基于证据继续推理。
-2. 构建 BM25 + Dense Retrieval + Reranker 的混合检索管线，支持 HotpotQA / Natural Questions 子集评测。
-3. 设计统一评测框架，对比 no-search、single-shot RAG、ReAct 和 Search-Agent，评估 EM/F1、引用准确率、搜索轮次和延迟。
-4. 实现轻量 LoRA/SFT 与 reward-based optimization，使用答案正确性、格式遵循、引用支持度和搜索成本约束搜索行为。
-5. 开发 FastAPI + Dashboard，可视化展示每轮 query、检索证据、推理轨迹和最终答案。
-
-## 9. 四周实施排期
-
-第 1 周：Agent MVP
-- Day 1：搭建目录、配置依赖、确定模型和 prompt 格式。
-- Day 2：实现 parser 和 agent runtime。
-- Day 3：实现 mock search tool。
-- Day 4：跑通 search-observe-answer 闭环。
-- Day 5：补充测试和 trace 日志。
-
-第 2 周：检索系统
-- Day 1：准备 HotpotQA / Wikipedia 小规模语料。
-- Day 2：实现文档切分和 BM25。
-- Day 3：实现 Dense Retrieval + FAISS。
-- Day 4：实现 hybrid merge 和 rerank。
-- Day 5：接入 Agent runtime。
-
-第 3 周：评测和 baseline
-- Day 1：实现 no-search baseline。
-- Day 2：实现 single-shot RAG baseline。
-- Day 3：实现 ReAct baseline。
-- Day 4：实现 EM/F1/citation/search-turn/latency 指标。
-- Day 5：跑 100-500 条样本，整理结果。
-
-第 4 周：优化和展示
-- Day 1：构造 SFT trajectories。
-- Day 2：LoRA SFT 小规模训练。
-- Day 3：实现 reward 函数和可选 RL 实验。
-- Day 4：开发 FastAPI + Streamlit demo。
-- Day 5：完善 README、case study、简历 bullet。
-
-## 10. 最小可交付版本
-
-如果时间紧，优先完成以下内容：
-1. Agent runtime
-2. 本地 hybrid search
-3. HotpotQA 子集评测
-4. no-search / single-shot RAG / Search-Agent 三组对比
-5. Dashboard 展示搜索轨迹
-6. README 和简历 bullet
-
-可以暂缓：
-1. 完整 RL 训练
-2. 大规模 Wikipedia 索引
-3. vLLM 高性能部署
-4. 复杂前端
-
-## 11. 面试讲解顺序
-
-1. 普通 RAG 的问题：
-   单次检索容易漏掉多跳问题中的中间实体。
-
-2. Search-Agent 的解决方案：
-   让模型在推理过程中多轮搜索，每轮根据当前证据生成下一个 query。
-
-3. 工程难点：
-   - 格式解析和异常恢复
-   - 检索质量
-   - 多轮搜索成本控制
-   - 引用证据校验
-   - 自动评测
-
-4. Search-R1 启发点：
-   - 搜索作为推理过程中的动作
-   - 模型学习何时搜索和搜什么
-   - 检索结果作为 observe 注入上下文
-   - reward 同时考虑答案质量和搜索行为
-
-5. 项目结果：
-   用 baseline 对比表说明 Search-Agent 在多跳问答上的收益，并展示失败案例和改进方向。
+先重建 MuSiQue 索引：
 
+  python scripts/build_index.py `
+    --docs-path data/musique/docs.jsonl `
+    --index-dir data/musique/index `
+    --embedding-model-path D:/Files/PycharmProject/keyboard/shixi/models/Embedding/bge-base-en `
+    --build-dense
+
+  如果你还要同步合成数据集索引，也运行：
+
+  python scripts/build_index.py `
+    --docs-path data/processed/docs.jsonl `
+    --index-dir data/index `
+    --embedding-model-path D:/Files/PycharmProject/keyboard/shixi/models/Embedding/bge-base-en `
+    --build-dense
+
+  重建完成后，再重新跑 Dense 和 Hybrid 召回：
+
+  python scripts/eval_retrieval.py `
+    --qa-path data/musique/qa.jsonl `
+    --docs-path data/musique/docs.jsonl `
+    --index-dir data/musique/index `
+    --retriever dense `
+    --top-ks 1,3,5,10 `
+    --sample-size 0
+
+  python scripts/eval_retrieval.py `
+    --qa-path data/musique/qa.jsonl `
+    --docs-path data/musique/docs.jsonl `
+    --index-dir data/musique/index `
+    --retriever hybrid `
+    --top-ks 1,3,5,10 `
+    --sample-size 0
+
+
+
+python scripts/run_agent.py --question "Who is the spouse of the Green performer?" --docs-path data/musique/docs.jsonl --retriever-mode bm25 --top-k 15 --max-search-turns 5 --max-model-turns 12 --max-snippet-chars 350 --no-memory
+
+
+python scripts/prepare_musique.py --input Githubs/musique/musique_ans_v1.0_dev.jsonl --output-dir data/musique --sample-size 0
+
+python scripts/build_index.py --docs-path data/musique/docs.jsonl --index-dir data/musique/index --embedding-model-path D:/Files/PycharmProject/keyboard/shixi/models/Embedding/bge-base-en --build-dense
+
+
+python scripts/eval_retrieval.py --qa-path data/musique/qa.jsonl --docs-path data/musique/docs.jsonl --retriever bm25 --top-ks 1,3,5,10 --sample-size 0 --output-dir results/retrieval_bm25
+
+
+python scripts/eval_retrieval.py --qa-path data/musique/qa.jsonl --docs-path data/musique/docs.jsonl --index-dir data/musique/index --embedding-model-path ../models/Embedding/bge-base-en --retriever dense

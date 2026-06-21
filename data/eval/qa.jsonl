@@ -18,3 +18,83 @@
 {"question":"Which city hosts the headquarters of the company founded by the actor who starred in Lantern Reef?","answer":"Seaborne","supporting_doc_ids":["doc036","doc037","doc038"],"type":"multi-hop"}
 {"question":"Which city is home to the university attended by the founder of Northpass Aeroworks?","answer":"Fairford","supporting_doc_ids":["doc039","doc040","doc041"],"type":"multi-hop"}
 {"question":"Which institution administers the award won by the scientist who discovered the Pale Thread Signal?","answer":"Orison Academy","supporting_doc_ids":["doc042","doc043","doc044"],"type":"multi-hop"}
+{"question":"Which city is the birthplace of the author of Amber Harbor 00 Novel?","answer":"Ashford","supporting_doc_ids":["doc051","doc052"],"type":"multi-hop"}
+{"question":"Which city is the birthplace of the actor who starred in Blue Garden 01 Film?","answer":"Highmere","supporting_doc_ids":["doc053","doc054"],"type":"multi-hop"}
+{"question":"Which city is the birthplace of the founder of CopperMap02Systems?","answer":"Oakmere","supporting_doc_ids":["doc055","doc056"],"type":"multi-hop"}
+{"question":"What is the hometown of the singer behind Distant Orbit 03 Album?","answer":"Valeport","supporting_doc_ids":["doc057","doc058"],"type":"multi-hop"}
+{"question":"At which university did the scientist who first described the Emerald Spire 04 Effect complete doctoral research?","answer":"Irongate Polytechnic","supporting_doc_ids":["doc059","doc060"],"type":"multi-hop"}
+{"question":"Which institution was the inventor of the Frost Kite 05 Device affiliated with during prototype development?","answer":"Briarfield University","supporting_doc_ids":["doc061","doc062"],"type":"multi-hop"}
+{"question":"Which organization employs the winner of the 2046 Golden Crown 06 Prize?","answer":"Ivoryline Foundation","supporting_doc_ids":["doc063","doc064"],"type":"multi-hop"}
+{"question":"Which city is the birthplace of the mayor of HiddenCompass07City?","answer":"Zephyrton","supporting_doc_ids":["doc065","doc066"],"type":"multi-hop"}
+{"question":"Which city is the birthplace of the author of Ivory Engine 08 Novel?","answer":"Greyhaven","supporting_doc_ids":["doc067","doc068"],"type":"multi-hop"}
+{"question":"Which city is the birthplace of the actor who starred in Jade Signal 09 Film?","answer":"Norvale","supporting_doc_ids":["doc069","doc070"],"type":"multi-hop"}
+{"question":"Which city is the birthplace of the founder of KindledMeadow10Systems?","answer":"Umberfall","supporting_doc_ids":["doc071","doc072"],"type":"multi-hop"}
+{"question":"What is the hometown of the singer behind Lunar River 11 Album?","answer":"Corvale","supporting_doc_ids":["doc073","doc074"],"type":"multi-hop"}
+{"question":"At which university did the scientist who first described the Misty Foundry 12 Effect complete doctoral research?","answer":"Aster Hall Institute","supporting_doc_ids":["doc075","doc076"],"type":"multi-hop"}
+{"question":"Which institution was the inventor of the Northern Circuit 13 Device affiliated with during prototype development?","answer":"Fenmark Academy","supporting_doc_ids":["doc077","doc078"],"type":"multi-hop"}
+{"question":"Which organization employs the winner of the 2044 Opal Lantern 14 Prize?","answer":"Cairnfield Research House","supporting_doc_ids":["doc079","doc080"],"type":"multi-hop"}
+{"question":"Which city is the birthplace of the mayor of PaleBridge15City?","answer":"Fenwick","supporting_doc_ids":["doc081","doc082"],"type":"multi-hop"}
+{"question":"Which city is the birthplace of the author of Quiet Mirror 16 Novel?","answer":"Moonford","supporting_doc_ids":["doc083","doc084"],"type":"multi-hop"}
+{"question":"Which city is the birthplace of the actor who starred in Red Archive 17 Film?","answer":"Thornwick","supporting_doc_ids":["doc085","doc086"],"type":"multi-hop"}
+{"question":"Which city is the birthplace of the founder of SilverThread18Systems?","answer":"Brindle","supporting_doc_ids":["doc087","doc088"],"type":"multi-hop"}
+{"question":"What is the hometown of the singer behind Twilight Reef 19 Album?","answer":"Ironbay","supporting_doc_ids":["doc089","doc090"],"type":"multi-hop"}
+{"question":"At which university did the scientist who first described the Amber Harbor 20 Effect complete doctoral research?","answer":"Elderstone Laboratory","supporting_doc_ids":["doc091","doc092"],"type":"multi-hop"}
+{"question":"Which institution was the inventor of the Blue Garden 21 Device affiliated with during prototype development?","answer":"Juniper Science House","supporting_doc_ids":["doc093","doc094"],"type":"multi-hop"}
+{"question":"Which organization employs the winner of the 2042 Copper Map 22 Prize?","answer":"Glimmerstone Conservatory","supporting_doc_ids":["doc095","doc096"],"type":"multi-hop"}
+{"question":"Which city is the birthplace of the mayor of DistantOrbit23City?","answer":"Lowmarsh","supporting_doc_ids":["doc097","doc098"],"type":"multi-hop"}
+{"question":"Which city is the birthplace of the author of Emerald Spire 24 Novel?","answer":"Stonefield","supporting_doc_ids":["doc099","doc100"],"type":"multi-hop"}
+{"question":"Which city is the birthplace of the actor who starred in Frost Kite 25 Film?","answer":"Ashford","supporting_doc_ids":["doc101","doc102"],"type":"multi-hop"}
+{"question":"Which city is the birthplace of the founder of GoldenCrown26Systems?","answer":"Highmere","supporting_doc_ids":["doc103","doc104"],"type":"multi-hop"}
+{"question":"What is the hometown of the singer behind Hidden Compass 27 Album?","answer":"Oakmere","supporting_doc_ids":["doc105","doc106"],"type":"multi-hop"}
+{"question":"At which university did the scientist who first described the Ivory Engine 28 Effect complete doctoral research?","answer":"Irongate Polytechnic","supporting_doc_ids":["doc107","doc108"],"type":"multi-hop"}
+{"question":"Which institution was the inventor of the Jade Signal 29 Device affiliated with during prototype development?","answer":"Briarfield University","supporting_doc_ids":["doc109","doc110"],"type":"multi-hop"}
+{"question":"Which organization employs the winner of the 2040 Kindled Meadow 30 Prize?","answer":"Auralis Observatory","supporting_doc_ids":["doc111","doc112"],"type":"multi-hop"}
+{"question":"Which city is the birthplace of the mayor of LunarRiver31City?","answer":"Rivermark","supporting_doc_ids":["doc113","doc114"],"type":"multi-hop"}
+{"question":"Which city is the birthplace of the author of Misty Foundry 32 Novel?","answer":"Zephyrton","supporting_doc_ids":["doc115","doc116"],"type":"multi-hop"}
+{"question":"Which city is the birthplace of the actor who starred in Northern Circuit 33 Film?","answer":"Greyhaven","supporting_doc_ids":["doc117","doc118"],"type":"multi-hop"}
+{"question":"Which city is the birthplace of the founder of OpalLantern34Systems?","answer":"Norvale","supporting_doc_ids":["doc119","doc120"],"type":"multi-hop"}
+{"question":"What is the hometown of the singer behind Pale Bridge 35 Album?","answer":"Umberfall","supporting_doc_ids":["doc121","doc122"],"type":"multi-hop"}
+{"question":"At which university did the scientist who first described the Quiet Mirror 36 Effect complete doctoral research?","answer":"Aster Hall Institute","supporting_doc_ids":["doc123","doc124"],"type":"multi-hop"}
+{"question":"Which institution was the inventor of the Red Archive 37 Device affiliated with during prototype development?","answer":"Fenmark Academy","supporting_doc_ids":["doc125","doc126"],"type":"multi-hop"}
+{"question":"Which organization employs the winner of the 2048 Silver Thread 38 Prize?","answer":"Eonbridge Laboratory","supporting_doc_ids":["doc127","doc128"],"type":"multi-hop"}
+{"question":"Which city is the birthplace of the mayor of TwilightReef39City?","answer":"Yarrowby","supporting_doc_ids":["doc129","doc130"],"type":"multi-hop"}
+{"question":"Which city is the birthplace of the author of Amber Harbor 40 Novel?","answer":"Fenwick","supporting_doc_ids":["doc131","doc132"],"type":"multi-hop"}
+{"question":"Which city is the birthplace of the actor who starred in Blue Garden 41 Film?","answer":"Moonford","supporting_doc_ids":["doc133","doc134"],"type":"multi-hop"}
+{"question":"Which city is the birthplace of the founder of CopperMap42Systems?","answer":"Thornwick","supporting_doc_ids":["doc135","doc136"],"type":"multi-hop"}
+{"question":"What is the hometown of the singer behind Distant Orbit 43 Album?","answer":"Brindle","supporting_doc_ids":["doc137","doc138"],"type":"multi-hop"}
+{"question":"At which university did the scientist who first described the Emerald Spire 44 Effect complete doctoral research?","answer":"Elderstone Laboratory","supporting_doc_ids":["doc139","doc140"],"type":"multi-hop"}
+{"question":"Which institution was the inventor of the Frost Kite 45 Device affiliated with during prototype development?","answer":"Juniper Science House","supporting_doc_ids":["doc141","doc142"],"type":"multi-hop"}
+{"question":"Which organization employs the winner of the 2046 Golden Crown 46 Prize?","answer":"Ivoryline Foundation","supporting_doc_ids":["doc143","doc144"],"type":"multi-hop"}
+{"question":"Which city is the birthplace of the mayor of HiddenCompass47City?","answer":"Eastridge","supporting_doc_ids":["doc145","doc146"],"type":"multi-hop"}
+{"question":"Which city is the birthplace of the author of Ivory Engine 48 Novel?","answer":"Lowmarsh","supporting_doc_ids":["doc147","doc148"],"type":"multi-hop"}
+{"question":"Which city is the birthplace of the actor who starred in Jade Signal 49 Film?","answer":"Stonefield","supporting_doc_ids":["doc149","doc150"],"type":"multi-hop"}
+{"question":"Which city is the birthplace of the founder of KindledMeadow50Systems?","answer":"Ashford","supporting_doc_ids":["doc151","doc152"],"type":"multi-hop"}
+{"question":"What is the hometown of the singer behind Lunar River 51 Album?","answer":"Highmere","supporting_doc_ids":["doc153","doc154"],"type":"multi-hop"}
+{"question":"At which university did the scientist who first described the Misty Foundry 52 Effect complete doctoral research?","answer":"Irongate Polytechnic","supporting_doc_ids":["doc155","doc156"],"type":"multi-hop"}
+{"question":"Which institution was the inventor of the Northern Circuit 53 Device affiliated with during prototype development?","answer":"Briarfield University","supporting_doc_ids":["doc157","doc158"],"type":"multi-hop"}
+{"question":"Which organization employs the winner of the 2044 Opal Lantern 54 Prize?","answer":"Cairnfield Research House","supporting_doc_ids":["doc159","doc160"],"type":"multi-hop"}
+{"question":"Which city is the birthplace of the mayor of PaleBridge55City?","answer":"Kingswell","supporting_doc_ids":["doc161","doc162"],"type":"multi-hop"}
+{"question":"Which city is the birthplace of the author of Quiet Mirror 56 Novel?","answer":"Rivermark","supporting_doc_ids":["doc163","doc164"],"type":"multi-hop"}
+{"question":"Which city is the birthplace of the actor who starred in Red Archive 57 Film?","answer":"Zephyrton","supporting_doc_ids":["doc165","doc166"],"type":"multi-hop"}
+{"question":"Which city is the birthplace of the founder of SilverThread58Systems?","answer":"Greyhaven","supporting_doc_ids":["doc167","doc168"],"type":"multi-hop"}
+{"question":"What is the hometown of the singer behind Twilight Reef 59 Album?","answer":"Norvale","supporting_doc_ids":["doc169","doc170"],"type":"multi-hop"}
+{"question":"At which university did the scientist who first described the Amber Harbor 60 Effect complete doctoral research?","answer":"Aster Hall Institute","supporting_doc_ids":["doc171","doc172"],"type":"multi-hop"}
+{"question":"Which institution was the inventor of the Blue Garden 61 Device affiliated with during prototype development?","answer":"Fenmark Academy","supporting_doc_ids":["doc173","doc174"],"type":"multi-hop"}
+{"question":"Which organization employs the winner of the 2042 Copper Map 62 Prize?","answer":"Glimmerstone Conservatory","supporting_doc_ids":["doc175","doc176"],"type":"multi-hop"}
+{"question":"Which city is the birthplace of the mayor of DistantOrbit63City?","answer":"Quarryden","supporting_doc_ids":["doc177","doc178"],"type":"multi-hop"}
+{"question":"Which city is the birthplace of the author of Emerald Spire 64 Novel?","answer":"Yarrowby","supporting_doc_ids":["doc179","doc180"],"type":"multi-hop"}
+{"question":"Which city hosts the headquarters of the company founded by the actor who starred in Kindled Meadow 90 Feature?","answer":"Zephyrton","supporting_doc_ids":["doc181","doc182","doc183"],"type":"multi-hop"}
+{"question":"Which institution administers the award won by the scientist who discovered the Lunar River 91 Signal?","answer":"Greywater Institute","supporting_doc_ids":["doc184","doc185","doc186"],"type":"multi-hop"}
+{"question":"Which city is home to the university attended by the founder of MistyFoundry92Aeroworks?","answer":"Norvale","supporting_doc_ids":["doc187","doc188","doc189"],"type":"multi-hop"}
+{"question":"Which organization sponsors the award won by the author of Northern Circuit 93 Chronicle?","answer":"Ivoryline Foundation","supporting_doc_ids":["doc190","doc191","doc192"],"type":"multi-hop"}
+{"question":"Which city hosts the headquarters of the company founded by the actor who starred in Opal Lantern 94 Feature?","answer":"Corvale","supporting_doc_ids":["doc193","doc194","doc195"],"type":"multi-hop"}
+{"question":"What city was the writer of Amber Harbor 00 Novel born in?","answer":"Ashford","supporting_doc_ids":["doc051","doc052"],"type":"multi-hop"}
+{"question":"What city was the star of Blue Garden 01 Film born in?","answer":"Highmere","supporting_doc_ids":["doc053","doc054"],"type":"multi-hop"}
+{"question":"What is the birth city of the founder of CopperMap02Systems?","answer":"Oakmere","supporting_doc_ids":["doc055","doc056"],"type":"multi-hop"}
+{"question":"Which hometown is listed for the singer of Distant Orbit 03 Album?","answer":"Valeport","supporting_doc_ids":["doc057","doc058"],"type":"multi-hop"}
+{"question":"Where did the researcher behind the Emerald Spire 04 Effect complete doctoral research?","answer":"Irongate Polytechnic","supporting_doc_ids":["doc059","doc060"],"type":"multi-hop"}
+{"question":"What institution was associated with the inventor of the Frost Kite 05 Device?","answer":"Briarfield University","supporting_doc_ids":["doc061","doc062"],"type":"multi-hop"}
+{"question":"Where does the winner of the Golden Crown 06 Prize work?","answer":"Ivoryline Foundation","supporting_doc_ids":["doc063","doc064"],"type":"multi-hop"}
+{"question":"What city was the mayor linked to HiddenCompass07City born in?","answer":"Zephyrton","supporting_doc_ids":["doc065","doc066"],"type":"multi-hop"}
+{"question":"What city was the writer of Ivory Engine 08 Novel born in?","answer":"Greyhaven","supporting_doc_ids":["doc067","doc068"],"type":"multi-hop"}
+{"question":"What city was the star of Jade Signal 09 Film born in?","answer":"Norvale","supporting_doc_ids":["doc069","doc070"],"type":"multi-hop"}

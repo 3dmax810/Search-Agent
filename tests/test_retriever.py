@@ -22,7 +22,7 @@ def test_bm25_can_load_docs():
     docs_path = root_path / "data" / "processed" / "docs.jsonl"
     retriever = BM25Retriever(docs_path)
 
-    assert len(retriever.docs) == 50
+    assert len(retriever.docs) == 200
 
 
 def test_bm25_retrieves_som_supporting_doc_for_eval_questions():

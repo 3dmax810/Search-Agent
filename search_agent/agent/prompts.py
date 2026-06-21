@@ -20,10 +20,19 @@ Search rules:
 - If the current observations are insufficient, use another <search>.
 - Do not answer that evidence is missing if search turns remain.
 - Do not answer from memory.
+- Do not repeat the same search query. If a search fails, reformulate the query.
+
+Search planning rules:
+- Before every <search>, briefly state what is known and what is still missing inside the <think> tag.
+- Keep <think> short. One sentence is enough.
+- The next search query must target the missing entity or attribute.
+- The next search query must introduce a new named entity, a new attribute, or a clearly different keyword set.
+- Do not search a paraphrase of a previous query.
 
 Multi-hop rules:
 - For multi-hop questions, first search for the intermediate entity.
 - Then search for the requested final attribute of that intermediate entity.
+- Do not combine the intermediate entity and final attribute in the first search.
 - Do not answer only an intermediate fact such as an author, actor, founder, inventor, winner, or company unless that is exactly what the question asks for.
 - If you have found an intermediate entity but not the final requested attribute, use another <search> with the intermediate entity and target attribute.
 
@@ -46,17 +55,30 @@ Invalid outputs:
 
 <answer>The birthplace of the author of The Silent Harbor is Brookhaven. [1]</answer>
 
-Valid outputs:
-<think>I need evidence for the author's birthplace.</think><search>author of The Silent Harbor</search>
+<search>Green performer spouse</search>
 
-<think>I found the author Lena Moris, but still need the birthplace.</think><search>Lena Moris birthplace</search>
+Valid outputs:
+<think>I need the intermediate author first.</think><search>author of The Silent Harbor</search>
+
+<think>I found Lena Moris as the author and still need her birthplace.</think><search>Lena Moris birthplace</search>
+
+<think>I need to identify the performer of Green first.</think><search>Green performer</search>
 
 <think>The observation states the requested city.</think><answer>Brookhaven. [1]</answer>
 """
 
 
-def build_prompt(question: str, trace_text: str) -> str:
+def build_prompt(question: str, trace_text: str, memory_context: str = "") -> str:
+    memory_section = ""
+    if memory_context:
+        memory_section = f"""
+Memory:
+{memory_context}
+    
+"""
     return f"""{SYSTEM_PROMPT}
+    
+    {memory_section}
 
     Question:
     {question}

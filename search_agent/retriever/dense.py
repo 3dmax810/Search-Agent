@@ -14,6 +14,7 @@ class DenseRetriever:
         model_path: str | Path,
         index_path: str | Path,
         meta_path: str | Path,
+        load_existing_index: bool = True,
     ):
         self.docs_path = Path(docs_path)
         self.model_path = str(model_path)
@@ -24,7 +25,7 @@ class DenseRetriever:
         self.docs = self._load_docs(self.docs_path)
         self.index = None
 
-        if self.index_path.exists() and self.meta_path.exists():
+        if load_existing_index and self.index_path.exists() and self.meta_path.exists():
             self.load_index()
 
     def _load_docs(self, path: Path) -> list[dict]:
@@ -40,6 +41,8 @@ class DenseRetriever:
         return [f"{doc['title']}. {doc['text']}" for doc in self.docs]
 
     def build_index(self, batch_size: int = 32) -> None:
+        self.docs = self._load_docs(self.docs_path)
+
         if not self.docs:
             raise ValueError(f"No documents found in {self.docs_path}")
 
@@ -70,7 +73,24 @@ class DenseRetriever:
         self.index = faiss.read_index(str(self.index_path))
 
         with self.meta_path.open("r", encoding="utf-8") as f:
-            self.docs = json.load(f)
+            indexed_docs = json.load(f)
+
+        source_doc_ids = [doc.get("doc_id") for doc in self.docs]
+        indexed_doc_ids = [doc.get("doc_id") for doc in indexed_docs]
+
+        if source_doc_ids != indexed_doc_ids:
+            raise ValueError(
+                "Dense index metadata does not match docs_path. "
+                "Rebuild the dense index with the current docs.jsonl."
+            )
+
+        if self.index.ntotal != len(indexed_docs):
+            raise ValueError(
+                f"Dense index vector count ({self.index.ntotal}) does not match "
+                f"metadata doc count ({len(indexed_docs)}). Rebuild the dense index."
+            )
+
+        self.docs = indexed_docs
 
     def search(self, query: str, top_k: int = 5) -> list[RetrievedDoc]:
         if self.index is None:
